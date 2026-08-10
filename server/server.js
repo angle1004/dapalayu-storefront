@@ -7,6 +7,16 @@ import jwt from 'jsonwebtoken';
 
 const { MONGODB_URI, JWT_SECRET, CLIENT_ORIGIN = '', PORT = 10000, ADMIN_EMAILS = '' } = process.env;
 if (!MONGODB_URI || !JWT_SECRET) throw new Error('MONGODB_URI와 JWT_SECRET 환경변수가 필요합니다.');
+const mongoUri = MONGODB_URI.trim();
+const mongoUriCheck = {
+  startsWithMongoSrv: mongoUri.startsWith('mongodb+srv://'),
+  hasWhitespace: /\s/.test(mongoUri),
+  hasPlaceholder: /<[^>]+>/.test(mongoUri),
+  hasExpectedHost: mongoUri.includes('@cluster0.36jkfli.mongodb.net/'),
+  hasDatabaseName: mongoUri.includes('.mongodb.net/dapalayu?'),
+  hasCredentialsSeparator: (mongoUri.match(/@/g) || []).length === 1,
+  length: mongoUri.length
+};
 
 const app = express();
 const origins = CLIENT_ORIGIN.split(',').map(x => x.trim()).filter(Boolean);
@@ -115,4 +125,4 @@ app.post('/api/chat/threads/:customerId/messages', auth, async (req, res, next) 
 });
 app.use((error, _, res, __) => { console.error(error); res.status(500).json({ error: '서버 오류가 발생했습니다.' }); });
 
-mongoose.connect(MONGODB_URI).then(() => app.listen(PORT, () => console.log(`API listening on ${PORT}`))).catch(error => { console.error('MongoDB 연결 실패', error); process.exit(1); });
+mongoose.connect(mongoUri).then(() => app.listen(PORT, () => console.log(`API listening on ${PORT}`))).catch(error => { console.error('MongoDB 연결 실패', error.name, error.message, mongoUriCheck); process.exit(1); });
