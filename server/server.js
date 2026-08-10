@@ -27,6 +27,7 @@ app.use(cors({ origin(origin, done) {
 app.use(express.json({ limit: '1mb' }));
 
 const addressSchema = new mongoose.Schema({
+  label: { type: String, trim: true }, def: { type: Boolean, default: false },
   recipient: { type: String, required: true, trim: true },
   phone: { type: String, required: true, trim: true },
   zip: { type: String, trim: true }, street: { type: String, required: true, trim: true },
@@ -82,6 +83,14 @@ app.post('/api/auth/login', async (req, res, next) => {
   } catch (error) { next(error); }
 });
 app.get('/api/me', auth, async (req, res, next) => { try { const user = await User.findById(req.auth.sub); if (!user) return res.status(404).json({ error: '회원을 찾을 수 없습니다.' }); res.json({ user: publicUser(user) }); } catch (error) { next(error); } });
+app.patch('/api/me', auth, async (req, res, next) => {
+  try {
+    const allowed = {}; for (const key of ['name', 'phone', 'addresses']) if (req.body[key] !== undefined) allowed[key] = req.body[key];
+    const user = await User.findByIdAndUpdate(req.auth.sub, allowed, { new: true, runValidators: true });
+    if (!user) return res.status(404).json({ error: '회원을 찾을 수 없습니다.' });
+    res.json({ user: publicUser(user) });
+  } catch (error) { next(error); }
+});
 
 app.post('/api/orders', auth, async (req, res, next) => {
   try {

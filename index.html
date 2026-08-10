@@ -1305,9 +1305,26 @@ function toast(msg){
 
 /* ============================================================
    계정 / 인증
-   서버가 없는 정적 페이지이므로 인증은 브라우저 저장소 기반 목업입니다.
-   비밀번호 검증·세션 발급은 실제 서비스에서 반드시 서버로 옮겨야 합니다.
    ============================================================ */
+const API_BASE = 'https://dapalayu-api.onrender.com';
+const K_API_TOKEN = 'dapalayu_api_token_v1';
+let apiUser = null, apiOrders = [];
+function normalizeApiOrder(o){ return {id:o._id, no:o.orderNo, at:new Date(o.createdAt || o.createdAt).getTime(), status:o.status, items:(o.items || []).map(i => ({id:i.productId, name:i.name, opt:i.option, qty:i.quantity, price:i.unitPrice})), sub:o.subtotal, ship:o.shippingFee, total:o.total, to:o.shippingAddress}; }
+async function apiRequest(path, options = {}){
+  const headers = {'Content-Type':'application/json', ...(options.headers || {})};
+  const token = localStorage.getItem(K_API_TOKEN); if(token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(API_BASE + path, {...options, headers});
+  const body = await response.json().catch(() => ({}));
+  if(!response.ok) throw new Error(body.error || '요청을 처리하지 못했습니다.');
+  return body;
+}
+function saveApiSession(token, user){ localStorage.setItem(K_API_TOKEN, token); apiUser = user; }
+function clearApiSession(){ localStorage.removeItem(K_API_TOKEN); apiUser = null; apiOrders = []; }
+async function hydrateApiSession(){
+  if(!localStorage.getItem(K_API_TOKEN)) return;
+  try { const me = await apiRequest('/api/me'); apiUser = me.user; const orders = await apiRequest('/api/orders'); apiOrders = (orders.orders || []).map(normalizeApiOrder); route(); }
+  catch { clearApiSession(); syncHeader(); }
+}
 const K_USERS='dapalayu_users_v1', K_SESSION='dapalayu_session_v1',
       K_ADDR='dapalayu_addr_v2',   K_ORDERS='dapalayu_orders_v2';
 
@@ -1337,6 +1354,7 @@ function setSession(id, persist){
   }catch(e){}
 }
 function currentUser(){
+  if(apiUser) return apiUser;
   const s = getSession();
   return s ? users().find(u => u.id === s.id) || null : null;
 }
@@ -1346,9 +1364,9 @@ function patchUser(patch){
 }
 
 const addrAll = () => store.get(K_ADDR, {});
-const addrOf  = id => addrAll()[id] || [];
+const addrOf  = id => apiUser && String(apiUser.id) === String(id) ? (apiUser.addresses || []) : (addrAll()[id] || []);
 function addrSet(id, list){ const a = addrAll(); a[id] = list; store.set(K_ADDR, a); }
-const ordersOf = id => (store.get(K_ORDERS, {})[id] || []);
+const ordersOf = id => apiUser && String(apiUser.id) === String(id) ? apiOrders : (store.get(K_ORDERS, {})[id] || []);
 const addrLine = a => [a.street, a.ward, a.district, a.province].filter(Boolean).join(', ');
 
 function setErr(eid, msg){
@@ -1434,7 +1452,7 @@ function renderAuth(){
     ${note}`;
 }
 
-function doLogin(){
+async function doLogin(){
   const email = val('f_lemail').trim().toLowerCase(), pw = val('f_lpw');
   setErr('e_lemail', ''); setErr('e_lpw', '');
   let ok = true;
@@ -1442,16 +1460,15 @@ function doLogin(){
   if(!pw){ setErr('e_lpw', t('ePwRequired')); ok = false; }
   if(!ok) return;
 
-  const u = users().find(x => x.email === email);
-  if(!u || u.pw !== demoHash(pw)){ setErr('e_lpw', t('eLoginFail')); return; }
-
-  setSession(u.id, chk('f_keep'));
-  closeOverlays(); syncHeader();
-  toast(t('tWelcome', {name: u.name}));
-  if(location.hash.startsWith('#/account')) route();
+  try{
+    const result = await apiRequest('/api/auth/login', {method:'POST', body:JSON.stringify({email, password:pw})});
+    saveApiSession(result.token, result.user); const orders = await apiRequest('/api/orders'); apiOrders = (orders.orders || []).map(normalizeApiOrder);
+    closeOverlays(); syncHeader(); toast(t('tWelcome', {name: result.user.name}));
+    if(location.hash.startsWith('#/account')) route();
+  }catch(error){ setErr('e_lpw', error.message || t('eLoginFail')); }
 }
 
-function doSignup(){
+async function doSignup(){
   const name = val('f_name').trim(), email = val('f_email').trim().toLowerCase();
   const phone = val('f_phone').trim(), pw = val('f_pw'), pw2 = val('f_pw2');
   ['e_name','e_email','e_phone','e_pw','e_pw2'].forEach(k => setErr(k, ''));
@@ -1460,19 +1477,17 @@ function doSignup(){
   let ok = true;
   if(name.length < 2){ setErr('e_name', t('eNameMin')); ok = false; }
   if(!isEmail(email)){ setErr('e_email', t('eEmailFormat')); ok = false; }
-  else if(users().some(u => u.email === email)){ setErr('e_email', t('eEmailDup')); ok = false; }
   if(!isPhone(phone)){ setErr('e_phone', t('ePhFormat')); ok = false; }
   if(!isPw(pw)){ setErr('e_pw', t('ePwWeak')); ok = false; }
   if(pw !== pw2){ setErr('e_pw2', t('ePwMismatch')); ok = false; }
   if(!chk('f_t1') || !chk('f_t2')){ document.getElementById('e_terms').textContent = t('eTerms'); ok = false; }
   if(!ok) return;
 
-  const u = {id: uid(), name, email, phone, pw: demoHash(pw), at: Date.now(), mkt: {email: chk('f_t3'), sms: chk('f_t3')}};
-  usersSet([...users(), u]);
-  setSession(u.id, true);
-  closeOverlays(); syncHeader();
-  toast(t('tSignedUp', {name: u.name}));
-  go('#/account/profile');
+  try{
+    const result = await apiRequest('/api/auth/signup', {method:'POST', body:JSON.stringify({name, email, phone, password:pw})});
+    saveApiSession(result.token, result.user); closeOverlays(); syncHeader();
+    toast(t('tSignedUp', {name: result.user.name})); go('#/account/profile');
+  }catch(error){ setErr('e_email', error.message || t('eEmailDup')); }
 }
 
 $auth.addEventListener('click', e => {
@@ -1714,19 +1729,22 @@ function panelSecurity(u){
 }
 
 /* ---------------------------- 계정 액션 ---------------------------- */
-function saveProfile(u){
+async function saveProfile(u){
   const name = val('f_pname').trim(), phone = val('f_pphone').trim();
   setErr('e_pname', ''); setErr('e_pphone', '');
   let ok = true;
   if(name.length < 2){ setErr('e_pname', t('eNameMin')); ok = false; }
   if(!isPhone(phone)){ setErr('e_pphone', t('ePhFormat')); ok = false; }
   if(!ok) return;
-  patchUser({id: u.id, name, phone, mkt: {email: chk('f_me'), sms: chk('f_ms')}});
+  if(apiUser){
+    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({name, phone})}); apiUser = result.user; }
+    catch(error){ toast(error.message); return; }
+  }else patchUser({id: u.id, name, phone, mkt: {email: chk('f_me'), sms: chk('f_ms')}});
   renderAccount('profile'); syncHeader();
   toast(t('tProfileSaved'));
 }
 
-function saveAddr(u, id){
+async function saveAddr(u, id){
   const f = {
     label:     val('f_alabel').trim() || t('adLabelPh').split('/')[0].trim(),
     recipient: val('f_arecip').trim(),
@@ -1754,18 +1772,24 @@ function saveAddr(u, id){
   if(wantDef) list = list.map(a => ({...a, def: a.id === id}));
   if(!list.some(a => a.def)) list[0].def = true;
 
-  addrSet(u.id, list);
+  if(apiUser){
+    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({addresses:list})}); apiUser = result.user; }
+    catch(error){ toast(error.message); return; }
+  }else addrSet(u.id, list);
   addrEdit = null;
   renderAccount('addresses');
   toast(t('tAddrSaved'));
 }
 
-function delAddr(u, id){
+async function delAddr(u, id){
   const target = addrOf(u.id).find(a => a.id === id);
   if(!target || !confirm(t('adConfirmDel', {label: target.label}))) return;
   const list = addrOf(u.id).filter(a => a.id !== id);
   if(list.length && !list.some(a => a.def)) list[0].def = true;
-  addrSet(u.id, list);
+  if(apiUser){
+    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({addresses:list})}); apiUser = result.user; }
+    catch(error){ toast(error.message); return; }
+  }else addrSet(u.id, list);
   if(addrEdit === id) addrEdit = null;
   renderAccount('addresses');
   toast(t('tAddrDeleted'));
@@ -1805,7 +1829,7 @@ $acct.addEventListener('click', e => {
   if(!u) return;
 
   if(act === 'sec')          go('#/account/' + hit.dataset.sec);
-  if(act === 'logout'){ setSession(null); go('#/'); syncHeader(); toast(t('tLoggedOut')); }
+  if(act === 'logout'){ clearApiSession(); setSession(null); go('#/'); syncHeader(); toast(t('tLoggedOut')); }
   if(act === 'saveprofile')  saveProfile(u);
   if(act === 'addr-new'){    addrEdit = 'new'; renderAccount('addresses'); }
   if(act === 'addr-edit'){   addrEdit = id;    renderAccount('addresses'); }
@@ -1826,7 +1850,7 @@ function orderNo(){
   return `DP-${String(d.getFullYear()).slice(2)}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}-${Math.floor(Math.random() * 9000) + 1000}`;
 }
 
-function checkout(){
+async function checkout(){
   if(!cart.length) return;
   const u = currentUser();
   if(!u){ closeOverlays(); openAuth('login'); toast(t('tLoginRequired')); return; }
@@ -1842,9 +1866,17 @@ function checkout(){
     sub, ship, total,
     to: {recipient: a.recipient, phone: a.phone, street: a.street, ward: a.ward, district: a.district, province: a.province},
   };
-  const all = store.get(K_ORDERS, {});
-  all[u.id] = [order, ...(all[u.id] || [])];
-  store.set(K_ORDERS, all);
+  if(apiUser){
+    try{
+      const result = await apiRequest('/api/orders', {method:'POST', body:JSON.stringify({
+        items: cart.map(c => { const p = findP(c.id); return {productId:p.id, name:pName(p), option:pOpts(p)[c.oi], quantity:c.qty, unitPrice:p.p}; }),
+        subtotal:sub, shippingFee:ship, total, shippingAddress:a
+      })});
+      apiOrders = [normalizeApiOrder(result.order), ...apiOrders];
+    }catch(error){ toast(error.message); return; }
+  }else{
+    const all = store.get(K_ORDERS, {}); all[u.id] = [order, ...(all[u.id] || [])]; store.set(K_ORDERS, all);
+  }
 
   cart = []; saveCart(); renderCart(); closeOverlays();
   go('#/account/orders');
@@ -1958,6 +1990,7 @@ renderGrid();
 renderHeroFig();
 renderCart();
 route();
+hydrateApiSession();
 </script>
 </body>
 </html>
