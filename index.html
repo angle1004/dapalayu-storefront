@@ -1914,10 +1914,11 @@ function renderAdmin(){
 async function loadAdminFromApi(){
   if(!apiUser || apiUser.role !== 'admin') return;
   try{
-    const [ordersRes, usersRes] = await Promise.all([apiRequest('/api/orders'), apiRequest('/api/admin/users')]);
+    const [ordersRes, usersRes, threadsRes] = await Promise.all([apiRequest('/api/orders'), apiRequest('/api/admin/users'), apiRequest('/api/chat/threads')]);
     const list = (ordersRes.orders || []).map(normalizeApiOrder), members = (usersRes.users || []).map(u => ({...u, id:u._id, at:new Date(u.createdAt).getTime()}));
     const grouped = {}; list.forEach(o => { const raw = (ordersRes.orders || []).find(x => x.orderNo === o.no); const uid = raw?.user?._id || raw?.user || 'unknown'; (grouped[uid] ||= []).push(o); });
-    usersSet(members); store.set(K_ORDERS, grouped); renderAdmin();
+    const chatMap = {}; (threadsRes.threads || []).forEach(thread => { const uid = thread.customer?._id || thread.customer; chatMap[uid] = (thread.messages || []).map(m => ({from:m.from, text:m.body, at:m.createdAt})); });
+    usersSet(members); store.set(K_ORDERS, grouped); adminChatsSet(chatMap); renderAdmin();
   }catch(error){ toast(error.message); }
 }
 function adminOverview(all, members, revenue){
@@ -1970,6 +1971,7 @@ document.getElementById('adminRoot').addEventListener('click', e => {
 document.getElementById('adminRoot').addEventListener('submit', e => {
   if(e.target.id !== 'adminChatForm') return; e.preventDefault();
   const input = document.getElementById('adminChatInput'), text = input.value.trim(); if(!text) return;
+  if(apiUser){ apiRequest(`/api/chat/threads/${adminChatUser}/messages`, {method:'POST', body:JSON.stringify({body:text})}).then(loadAdminFromApi).catch(error => toast(error.message)); return; }
   const chats = adminChats(); chats[adminChatUser] = [...(chats[adminChatUser] || []), {from:'admin', text, at:Date.now()}]; adminChatsSet(chats); renderAdmin();
 });
 
