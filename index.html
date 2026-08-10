@@ -1911,6 +1911,15 @@ function renderAdmin(){
     <div class="admin-layout"><nav class="admin-nav">${adminNav('overview','개요')}${adminNav('orders','주문 / 배송')}${adminNav('members','회원')}${adminNav('revenue','매출')}${adminNav('chat','고객 문의')}</nav><div class="admin-main">${current}</div></div>
   </section>`;
 }
+async function loadAdminFromApi(){
+  if(!apiUser || apiUser.role !== 'admin') return;
+  try{
+    const [ordersRes, usersRes] = await Promise.all([apiRequest('/api/orders'), apiRequest('/api/admin/users')]);
+    const list = (ordersRes.orders || []).map(normalizeApiOrder), members = (usersRes.users || []).map(u => ({...u, id:u._id}));
+    const grouped = {}; list.forEach(o => { const raw = (ordersRes.orders || []).find(x => x.orderNo === o.no); const uid = raw?.user?._id || raw?.user || 'unknown'; (grouped[uid] ||= []).push(o); });
+    usersSet(members); store.set(K_ORDERS, grouped); renderAdmin();
+  }catch(error){ toast(error.message); }
+}
 function adminOverview(all, members, revenue){
   const pending = all.filter(o => o.status === 'paid' || o.status === 'preparing').length;
   return `<h2 class="admin-title">오늘의 운영 현황</h2>
@@ -1972,7 +1981,10 @@ function route(){
   document.getElementById('viewAccount').hidden = !isAcct;
   document.getElementById('viewAdmin').hidden = !isAdmin;
   if(isAcct) renderAccount(h.split('/')[2] || 'profile');
-  if(isAdmin) renderAdmin();
+  if(isAdmin){
+    if(apiUser?.role === 'admin') loadAdminFromApi();
+    else renderAdmin();
+  }
   window.scrollTo({top: 0});
   syncHeader();
 }
