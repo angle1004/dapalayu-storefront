@@ -1,0 +1,6 @@
+# 로컬 개발·렌더링 점검 산출물
+.npm-cache/
+.chrome-profile/
+.chrome-profile-2/
+desktop.png
+

@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DAPALAYU — Everyday Goods</title>
+<style>
+  :root{
+    --paper:#faf9f6;
+    --surface:#ffffff;
+    --tile:#f1efea;
+    --tile-hi:#e9e6df;
+    --ink:#1a1917;
+    --ink-60:#6e6b65;
+    --ink-40:#9a968e;
+    --line:#e3e0d9;
+    --line-2:#efece5;
+    --accent:#a63a22;
+    --serif:"Iowan Old Style",Georgia,"Times New Roman",serif;
+    --sans:"Pretendard","Apple SD Gothic Neo","Segoe UI","Malgun Gothic",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+    font-feature-settings:"tnum";
+  }
+  button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+  input,select{font:inherit;color:inherit}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+
+  .eyebrow{
+    font-family:var(--serif);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-40);
+  }
+  .idx{font-family:var(--serif);font-size:11.5px;letter-spacing:.06em;color:var(--ink-40);font-style:italic}
+  .rule{height:1px;background:var(--line);border:0;margin:0}
+
+  /* ---------- 헤더 ---------- */
+  header{position:sticky;top:0;z-index:60;background:var(--paper);border-bottom:1px solid var(--line)}
+  .notice{
+    text-align:center;font-size:11px;letter-spacing:.11em;color:var(--ink-60);
+    padding:9px 20px;border-bottom:1px solid var(--line-2);
+  }
+  .masthead{display:flex;align-items:center;justify-content:space-between;gap:26px;height:74px}
+  .logo{
+    font-size:21px;font-weight:700;letter-spacing:.22em;white-space:nowrap;
+    display:flex;align-items:baseline;gap:10px;
+  }
+  .logo em{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.14em;color:var(--ink-40);font-weight:400}
+  .utils{display:flex;align-items:center;gap:20px}
+  .searchline{
+    display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);
+    padding:5px 2px;width:210px;transition:border-color .2s;
+  }
+  .searchline:focus-within{border-color:var(--ink)}
+  .searchline input{flex:1;border:0;outline:0;background:none;font-size:13px;min-width:0}
+  .searchline input::placeholder{color:var(--ink-40)}
+  .searchline svg{flex:none;color:var(--ink-40)}
+  .langsw{display:flex;align-items:center;font-family:var(--serif);font-size:11px;letter-spacing:.14em}
+  .langsw button{padding:4px 5px;color:var(--ink-40);transition:color .18s}
+  .langsw button:hover{color:var(--ink-60)}
+  .langsw button[aria-pressed="true"]{color:var(--ink);font-weight:700}
+  .langsw i{color:var(--line);font-style:normal}
+  .cartbtn{
+    display:flex;align-items:baseline;gap:6px;font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;font-family:var(--serif);white-space:nowrap;
+  }
+  .cartbtn .n{font-family:var(--sans);font-size:11px;letter-spacing:0;color:var(--accent);font-weight:600}
+  nav.cats{display:flex;gap:26px;overflow-x:auto;padding:0 0 15px;scrollbar-width:none}
+  nav.cats::-webkit-scrollbar{display:none}
+  .cat{
+    white-space:nowrap;font-size:13.5px;color:var(--ink-60);position:relative;
+    padding-bottom:3px;transition:color .18s;
+  }
+  .cat:hover{color:var(--ink)}
+  .cat::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);
+    transform:scaleX(0);transition:transform .22s;transform-origin:left;
+  }
+  .cat[aria-selected="true"]{color:var(--ink);font-weight:600}
+  .cat[aria-selected="true"]::after{transform:scaleX(1)}
+
+  /* ---------- 히어로 ---------- */
+  .hero{display:grid;grid-template-columns:1fr 420px;gap:70px;align-items:center;padding:48px 0 76px}
+  .hero h1{margin:20px 0 0;font-size:46px;line-height:1.28;letter-spacing:-.04em;font-weight:700}
+  .hero .lede{margin:24px 0 0;color:var(--ink-60);font-size:15px;max-width:34em;line-height:1.85}
+  .textlink{
+    display:inline-block;margin-top:34px;font-size:13.5px;font-weight:600;letter-spacing:.02em;
+    border-bottom:1px solid var(--ink);padding-bottom:3px;transition:opacity .18s;
+  }
+  .textlink:hover{opacity:.5}
+  .hero-fig figcaption{
+    margin-top:14px;font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--ink-40);
+    display:flex;justify-content:space-between;gap:14px;
+  }
+  .figtile{background:var(--tile);aspect-ratio:4/5;display:grid;place-items:center;color:var(--ink)}
+  .figtile svg{width:56%}
+
+  /* ---------- 섹션 ---------- */
+  .sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:34px 0 26px}
+  .sechead h2{margin:6px 0 0;font-size:20px;letter-spacing:-.03em;font-weight:700}
+  .sortwrap{display:flex;align-items:center;gap:8px}
+  .sortwrap label{font-family:var(--serif);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-40)}
+  select.sort{
+    -webkit-appearance:none;appearance:none;border:0;background:none;outline:0;
+    font-size:13.5px;font-weight:600;padding-right:16px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'><path d='M1 1l4 4 4-4' fill='none' stroke='%231a1917' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right center;
+  }
+
+  /* ---------- 상품 ---------- */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:52px 30px;padding-bottom:110px}
+  .card{display:block;text-align:left;width:100%}
+  .tile{
+    position:relative;background:var(--tile);aspect-ratio:1/1;overflow:hidden;
+    display:grid;place-items:center;transition:background .3s;
+  }
+  .card:hover .tile{background:var(--tile-hi)}
+  .tile svg.ill{width:62%;color:var(--ink);transition:transform .45s cubic-bezier(.2,.7,.3,1)}
+  .card:hover .tile svg.ill{transform:scale(1.05)}
+  .flag{
+    position:absolute;top:13px;left:14px;font-family:var(--serif);
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);
+  }
+  .flag.sale{color:var(--accent)}
+  .tile .idx{position:absolute;top:12px;right:14px}
+  .card-meta{padding-top:15px}
+  .card-cat{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-40);font-family:var(--serif)}
+  .card-name{font-size:14px;font-weight:500;letter-spacing:-.02em;margin:7px 0 9px;line-height:1.5}
+  .prices{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .p-now{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+  .p-now.sale{color:var(--accent)}
+  .p-was{font-size:12px;color:var(--ink-40);text-decoration:line-through;white-space:nowrap}
+  .rate{margin-top:7px;font-size:11.5px;color:var(--ink-40)}
+  .empty{grid-column:1/-1;text-align:center;padding:110px 0;color:var(--ink-40)}
+  .empty .lg{font-family:var(--serif);font-style:italic;font-size:26px;color:var(--ink);margin-bottom:12px}
+
+  /* ---------- 오버레이 ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(26,25,23,.38);z-index:80;opacity:0;pointer-events:none;transition:opacity .3s}
+  .scrim.open{opacity:1;pointer-events:auto}
+
+  .modal{
+    position:fixed;z-index:90;left:50%;top:50%;
+    transform:translate(-50%,-48%);opacity:0;pointer-events:none;
+    width:min(900px,calc(100vw - 48px));
+    height:min(670px,calc(100vh - 72px));
+    background:var(--surface);overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:opacity .28s, transform .28s;
+  }
+  .modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+  /* 모달 자체는 스크롤하지 않는다. 정보 칼럼 안쪽만 스크롤해서
+     제목·닫기 버튼과 구매 버튼이 항상 보이도록 고정한다. */
+  .modal-inner{display:grid;grid-template-columns:1.06fr 1fr;flex:1;min-height:0}
+  .modal-fig{background:var(--tile);display:grid;place-items:center;padding:36px;min-height:0}
+  .modal-fig svg{width:min(78%,248px);max-height:100%;color:var(--ink)}
+  .modal-info{display:flex;flex-direction:column;min-height:0}
+  .modal-scroll{flex:1;overflow-y:auto;min-height:0;padding:38px 38px 14px}
+  .modal-scroll::-webkit-scrollbar{width:3px}
+  .modal-scroll::-webkit-scrollbar-thumb{background:var(--line)}
+  .modal-info h3{margin:11px 0 0;font-size:23px;letter-spacing:-.035em;line-height:1.35;font-weight:700}
+  .modal-desc{color:var(--ink-60);font-size:13.5px;margin:13px 0 0;line-height:1.8}
+  .modal-price{display:flex;align-items:baseline;gap:10px;margin:20px 0 5px;flex-wrap:wrap}
+  .modal-price .p-now{font-size:20px}
+  .modal-price .p-was{font-size:13.5px}
+  .modal-rate{font-size:11.5px;color:var(--ink-40);margin-bottom:18px}
+  .modal-info .field{padding:15px 0}
+  .field{border-top:1px solid var(--line-2);padding:16px 0}
+  .field label{
+    display:block;font-family:var(--serif);font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-40);margin-bottom:10px;
+  }
+  .field select{
+    -webkit-appearance:none;appearance:none;width:100%;border:1px solid var(--line);
+    background:var(--surface);padding:12px 14px;font-size:13.5px;outline:0;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'><path d='M1 1l4 4 4-4' fill='none' stroke='%231a1917' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;
+  }
+  .field select:focus{border-color:var(--ink)}
+  .qty{display:flex;align-items:center;border:1px solid var(--line);width:fit-content}
+  .qty button{width:40px;height:40px;font-size:15px;color:var(--ink-60);transition:background .15s}
+  .qty button:hover{background:var(--tile);color:var(--ink)}
+  .qty span{width:48px;text-align:center;font-size:13.5px;font-weight:600}
+  /* 총액과 구매 버튼은 스크롤 영역 밖에 고정 */
+  .modal-foot{flex:none;border-top:1px solid var(--ink);padding:16px 38px 30px;background:var(--surface)}
+  .modal-total{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding-bottom:16px}
+  .modal-total .lbl{font-family:var(--serif);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-40)}
+  .modal-total .val{font-size:20px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+  .modal-actions{display:flex;gap:10px}
+  .btn-solid{
+    background:var(--ink);color:var(--paper);font-size:13.5px;font-weight:600;letter-spacing:.02em;
+    padding:16px 28px;transition:opacity .18s;flex:1;white-space:nowrap;
+  }
+  .btn-solid:hover{opacity:.82}
+  .btn-line{border:1px solid var(--line);padding:16px 24px;font-size:13.5px;font-weight:600;transition:border-color .18s;white-space:nowrap}
+  .btn-line:hover{border-color:var(--ink)}
+  .closebtn{
+    position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;
+    display:grid;place-items:center;background:var(--surface);
+    font-size:15px;color:var(--ink-60);z-index:3;transition:color .15s;
+  }
+  .closebtn:hover{color:var(--ink)}
+
+  /* ---------- 장바구니 ---------- */
+  .drawer{
+    position:fixed;z-index:90;top:0;right:0;bottom:0;width:min(430px,100vw);
+    background:var(--surface);transform:translateX(100%);
+    transition:transform .38s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{
+    padding:26px 30px 20px;border-bottom:1px solid var(--ink);
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .drawer-head h3{margin:0;font-family:var(--serif);font-size:13px;letter-spacing:.2em;text-transform:uppercase;font-weight:400}
+  .drawer-head .x{font-size:15px;color:var(--ink-60)}
+  .drawer-body{flex:1;overflow:auto;padding:0 30px}
+  .citem{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line-2)}
+  .citem-fig{width:74px;height:74px;background:var(--tile);display:grid;place-items:center;flex:none}
+  .citem-fig svg{width:64%;color:var(--ink)}
+  .citem-main{flex:1;min-width:0}
+  .citem-name{font-size:13.5px;font-weight:500;letter-spacing:-.02em;margin-bottom:4px}
+  .citem-opt{font-size:11.5px;color:var(--ink-40);margin-bottom:12px}
+  .citem-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+  .citem .qty{border-color:var(--line-2)}
+  .citem .qty button{width:30px;height:30px;font-size:13px}
+  .citem .qty span{width:34px;font-size:12.5px}
+  .citem-price{font-size:13.5px;font-weight:700;white-space:nowrap}
+  .del{color:var(--ink-40);font-size:11px;margin-top:6px;display:block;margin-left:auto}
+  .del:hover{color:var(--accent)}
+  .drawer-foot{border-top:1px solid var(--ink);padding:22px 30px 28px}
+  .shipbar{margin-bottom:20px}
+  .shipbar .t{font-size:11.5px;color:var(--ink-60);margin-bottom:8px}
+  .track{height:2px;background:var(--line-2);overflow:hidden}
+  .track i{display:block;height:2px;background:var(--ink);transition:width .4s}
+  .sumrow{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--ink-60);margin-bottom:9px}
+  .sumrow.total{
+    font-size:15px;font-weight:700;color:var(--ink);
+    border-top:1px solid var(--line-2);padding-top:14px;margin-top:14px;
+  }
+  .drawer-foot .btn-solid{width:100%;margin-top:20px}
+  .cart-empty{text-align:center;padding:90px 0;color:var(--ink-40)}
+  .cart-empty .lg{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--ink);margin-bottom:10px}
+
+  #toast{
+    position:fixed;left:50%;bottom:40px;transform:translate(-50%,14px);
+    background:var(--ink);color:var(--paper);padding:15px 26px;max-width:calc(100vw - 40px);
+    font-size:13px;z-index:120;opacity:0;pointer-events:none;
+    transition:opacity .26s, transform .26s;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  footer{border-top:1px solid var(--line);padding:60px 0 70px;font-size:12.5px;color:var(--ink-60)}
+  .fcols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+  footer h4{
+    margin:0 0 16px;font-family:var(--serif);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ink);font-weight:400;
+  }
+  footer ul{list-style:none;margin:0;padding:0}
+  footer li{margin-bottom:8px}
+  footer .biz{line-height:1.95;color:var(--ink-40);font-size:11.5px}
+  .fmark{font-size:17px;font-weight:700;letter-spacing:.2em;color:var(--ink);margin-bottom:18px}
+
+  /* ---------- 폼 ---------- */
+  .frow{margin-bottom:20px}
+  .frow > label{
+    display:block;font-family:var(--serif);font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-40);margin-bottom:9px;
+  }
+  .inp{
+    width:100%;border:1px solid var(--line);background:var(--surface);
+    padding:12px 14px;font-size:13.5px;outline:0;transition:border-color .18s;
+  }
+  .inp:focus{border-color:var(--ink)}
+  .inp:disabled{background:var(--tile);color:var(--ink-40);cursor:not-allowed}
+  .inp.bad{border-color:var(--accent)}
+  .err{display:block;font-size:11.5px;color:var(--accent);margin-top:7px}
+  .hint{display:block;font-size:11.5px;color:var(--ink-40);margin-top:7px}
+  .check{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--ink-60);margin-bottom:11px;cursor:pointer}
+  .check input{width:14px;height:14px;margin:3px 0 0;accent-color:var(--ink);flex:none}
+  .check b{font-weight:600;color:var(--ink)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+
+  /* ---------- 인증 ---------- */
+  .auth{
+    position:fixed;z-index:95;left:50%;top:50%;transform:translate(-50%,-48%);
+    opacity:0;pointer-events:none;width:min(430px,calc(100vw - 40px));max-height:90vh;overflow:auto;
+    background:var(--surface);padding:44px 42px 38px;transition:opacity .28s, transform .28s;
+  }
+  .auth.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+  .auth-tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin-bottom:32px}
+  .auth-tab{font-size:14px;color:var(--ink-40);padding-bottom:13px;position:relative;transition:color .18s}
+  .auth-tab[aria-selected="true"]{color:var(--ink);font-weight:700}
+  .auth-tab[aria-selected="true"]::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--ink);
+  }
+  .auth .btn-solid{width:100%;margin-top:8px}
+  .auth-foot{margin-top:22px;text-align:center;font-size:12.5px;color:var(--ink-40)}
+  .auth-foot button{font-size:12.5px;font-weight:600;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:1px}
+  .auth-note{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-2);font-size:11px;line-height:1.8;color:var(--ink-40)}
+
+  /* ---------- 마이페이지 ---------- */
+  body.acct-view nav.cats{display:none}
+  .acct-head{padding:64px 0 34px;border-bottom:1px solid var(--ink)}
+  .acct-head h1{margin:14px 0 0;font-size:31px;letter-spacing:-.04em;font-weight:700}
+  .acct-head .who{margin-top:9px;font-size:13px;color:var(--ink-60)}
+  .acct{display:grid;grid-template-columns:190px 1fr;gap:0 64px;padding-bottom:120px}
+  .acct-nav{border-right:1px solid var(--line);padding:34px 0}
+  .acct-nav button{display:block;width:100%;text-align:left;font-size:13.5px;color:var(--ink-60);padding:11px 0;transition:color .18s}
+  .acct-nav button:hover{color:var(--ink)}
+  .acct-nav button[aria-current="true"]{color:var(--ink);font-weight:700}
+  .acct-nav .sep{height:1px;background:var(--line-2);margin:14px 0}
+  .acct-nav .danger{color:var(--ink-40);font-size:12.5px}
+  .acct-nav .danger:hover{color:var(--accent)}
+  .panel{padding:34px 0 0;max-width:560px}
+  .panel > .eyebrow{display:block;margin-bottom:8px}
+  .panel h2{margin:0 0 6px;font-size:19px;letter-spacing:-.03em;font-weight:700}
+  .panel .sub{margin:0 0 30px;font-size:12.5px;color:var(--ink-60);line-height:1.8}
+  .panel-actions{display:flex;gap:10px;align-items:center;margin-top:28px;flex-wrap:wrap}
+  .panel-actions .btn-solid{flex:0 0 auto;padding:14px 30px}
+
+  .addr{border-bottom:1px solid var(--line-2);padding:22px 0;display:flex;gap:20px;justify-content:space-between}
+  .addr:first-of-type{border-top:1px solid var(--line)}
+  .addr-name{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:9px;margin-bottom:7px;flex-wrap:wrap}
+  .chip{
+    font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    border:1px solid var(--ink);padding:2px 7px;font-weight:400;white-space:nowrap;
+  }
+  .addr-text{font-size:12.5px;color:var(--ink-60);line-height:1.8}
+  .addr-acts{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:none}
+  .addr-acts button{font-size:11.5px;color:var(--ink-40);white-space:nowrap}
+  .addr-acts button:hover{color:var(--ink)}
+  .addr-acts button.rm:hover{color:var(--accent)}
+  .addform{border-top:1px solid var(--line);margin-top:26px;padding-top:28px}
+
+  .order{border-bottom:1px solid var(--line-2);padding:26px 0}
+  .order:first-of-type{border-top:1px solid var(--line)}
+  .order-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;gap:16px}
+  .order-no{font-family:var(--serif);font-size:13px;letter-spacing:.08em}
+  .order-date{font-size:11.5px;color:var(--ink-40);margin-top:3px}
+  .order-state{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--line);padding:4px 9px;color:var(--ink-60);white-space:nowrap}
+  .oitem{display:flex;gap:14px;align-items:center;padding:9px 0}
+  .oitem-fig{width:52px;height:52px;background:var(--tile);display:grid;place-items:center;flex:none}
+  .oitem-fig svg{width:64%;color:var(--ink)}
+  .oitem-n{font-size:13px;font-weight:500}
+  .oitem-o{font-size:11.5px;color:var(--ink-40);margin-top:2px}
+  .oitem-p{margin-left:auto;font-size:12.5px;font-weight:600;white-space:nowrap}
+  .order-sum{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--line-2);margin-top:14px;padding-top:14px;font-size:13px}
+  .order-sum b{font-weight:700;white-space:nowrap}
+  .order-ship{font-size:11.5px;color:var(--ink-40);margin-top:10px;line-height:1.75}
+
+  .danger-box{border:1px solid var(--line);padding:24px;margin-top:14px}
+  .danger-box h3{margin:0 0 8px;font-size:14px;font-weight:700}
+  .danger-box p{margin:0 0 18px;font-size:12.5px;color:var(--ink-60);line-height:1.8}
+  .btn-danger{border:1px solid var(--accent);color:var(--accent);padding:12px 22px;font-size:13px;font-weight:600;transition:background .18s}
+  .btn-danger:hover{background:var(--accent);color:var(--paper)}
+
+  .gate{text-align:center;padding:120px 0 140px}
+  .gate .lg{font-family:var(--serif);font-style:italic;font-size:26px;margin-bottom:12px}
+  .gate p{color:var(--ink-60);font-size:13px;margin:0 0 28px}
+
+  @media (max-width:1080px){
+    .hero{grid-template-columns:1fr 320px;gap:44px}
+    .hero h1{font-size:38px}
+    .grid{grid-template-columns:repeat(3,1fr);gap:44px 24px}
+    .searchline{width:150px}
+  }
+  @media (max-width:900px){ .searchline{display:none} }
+  @media (max-width:820px){
+    .wrap{padding:0 22px}
+    .hero{grid-template-columns:1fr;padding:52px 0 44px;gap:36px}
+    .hero h1{font-size:31px}
+    .hero-fig{max-width:300px}
+    .grid{grid-template-columns:repeat(2,1fr);gap:38px 18px}
+    .modal{width:calc(100vw - 32px);height:min(86vh,calc(100vh - 32px))}
+    .modal-inner{grid-template-columns:1fr;grid-template-rows:168px 1fr}
+    .modal-fig{padding:18px}
+    .modal-fig svg{width:auto;height:100%}
+    .modal-scroll{padding:26px 24px 10px}
+    .modal-foot{padding:14px 24px 24px}
+    .masthead{height:64px;gap:14px}
+    .logo{font-size:17px;letter-spacing:.16em}
+    .logo em{display:none}
+    .utils{gap:14px}
+    .fcols{grid-template-columns:1fr 1fr;gap:34px}
+    .acct{grid-template-columns:1fr;gap:0}
+    .acct-nav{
+      border-right:0;border-bottom:1px solid var(--line);padding:16px 0;
+      display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;
+    }
+    .acct-nav::-webkit-scrollbar{display:none}
+    .acct-nav button{width:auto;white-space:nowrap;padding:6px 0}
+    .acct-nav .sep{display:none}
+    .acct-head{padding:44px 0 26px}
+    .acct-head h1{font-size:25px}
+    .auth{padding:34px 24px 30px}
+    .grid2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="notice" data-i18n="notice"></div>
+  <div class="wrap">
+    <div class="masthead">
+      <button class="logo" id="btnHome"><span id="wordmark">DAPALAYU</span> <em>Everyday Goods</em></button>
+      <div class="utils">
+        <div class="searchline">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+          <input id="q" type="search" data-i18n-ph="searchPh" autocomplete="off">
+        </div>
+        <div class="langsw" id="langsw">
+          <button data-lang="en">EN</button><i>/</i><button data-lang="vi">VI</button><i>/</i><button data-lang="ko">KO</button>
+        </div>
+        <button class="cartbtn" id="btnAccount"></button>
+        <button class="cartbtn" id="btnCart"><span data-i18n="cart"></span> <span class="n" id="cartN"></span></button>
+      </div>
+    </div>
+    <nav class="cats" id="cats"></nav>
+  </div>
+</header>
+
+<main class="wrap" id="viewShop">
+  <section class="hero">
+    <div>
+      <span class="eyebrow" data-i18n="heroEyebrow"></span>
+      <h1 data-i18n-html="heroTitle"></h1>
+      <p class="lede" data-i18n="heroLede"></p>
+      <button class="textlink" id="btnScroll" data-i18n="heroCta"></button>
+    </div>
+    <figure class="hero-fig" style="margin:0">
+      <div class="figtile" id="heroFig"></div>
+      <figcaption><span id="heroCapName"></span><span id="heroCapPrice"></span></figcaption>
+    </figure>
+  </section>
+
+  <hr class="rule">
+
+  <div class="sechead">
+    <div>
+      <span class="eyebrow" id="secKicker"></span>
+      <h2 id="secTitle"></h2>
+    </div>
+    <div class="sortwrap">
+      <label for="sort" data-i18n="sortLabel"></label>
+      <select class="sort" id="sort">
+        <option value="popular"  data-i18n="sortPopular"></option>
+        <option value="low"      data-i18n="sortLow"></option>
+        <option value="high"     data-i18n="sortHigh"></option>
+        <option value="discount" data-i18n="sortDiscount"></option>
+        <option value="review"   data-i18n="sortReview"></option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</main>
+
+<main class="wrap" id="viewAccount" hidden>
+  <div id="acctRoot"></div>
+</main>
+
+<footer>
+  <div class="wrap fcols">
+    <div>
+      <div class="fmark" id="fmark">DAPALAYU</div>
+      <div class="biz" data-i18n-html="fBiz"></div>
+    </div>
+    <div>
+      <h4 data-i18n="fShop"></h4>
+      <ul><li data-i18n="fNew"></li><li data-i18n="fBest"></li><li data-i18n="fCurated"></li><li data-i18n="fGift"></li></ul>
+    </div>
+    <div>
+      <h4 data-i18n="fSupport"></h4>
+      <ul><li data-i18n="fNotice"></li><li data-i18n="fFaq"></li><li data-i18n="fInquiry"></li><li data-i18n="fReturns"></li></ul>
+    </div>
+    <div>
+      <h4 data-i18n="fCompany"></h4>
+      <ul><li data-i18n="fTerms"></li><li data-i18n="fPrivacy"></li><li data-i18n="fPartner"></li></ul>
+    </div>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+<div class="auth" id="auth" role="dialog" aria-modal="true"></div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3><span data-i18n="cart"></span> <span id="drawerN" style="color:var(--accent)"></span></h3>
+    <button class="x" id="btnCloseCart" aria-label="close">✕</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot"></div>
+</aside>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   상품 일러스트 — 라인아트 인라인 SVG (viewBox 120×120)
+   ============================================================ */
+const ILL = {
+  1:`<rect x="43" y="20" width="34" height="13" rx="4"/><rect x="55" y="12" width="11" height="8" rx="3"/>
+     <path d="M46 33 L49 100a7 7 0 0 0 7 6h9a7 7 0 0 0 7-6l3-67"/><path d="M49 54h22"/>`,
+  2:`<path d="M30 45 L38 96a6 6 0 0 0 6 5h32a6 6 0 0 0 6-5l8-51"/><path d="M25 45h70"/>
+     <path d="M40 45a20 15 0 0 1 40 0"/><path d="M45 51l3 49M60 51v50M75 51l-3 49"/><path d="M33 66h54M36 83h48"/>`,
+  3:`<circle cx="60" cy="46" r="28"/><circle cx="60" cy="46" r="17"/><circle cx="60" cy="46" r="6"/>
+     <path d="M60 18v11M60 63v11M32 46h11M77 46h11M40 26l8 8M72 58l8 8M80 26l-8 8M48 58l-8 8"/>
+     <path d="M54 74h12v25a6 6 0 0 1-12 0z"/>`,
+  4:`<path d="M28 32h11v52l-5.5 12L28 84z"/><path d="M28 44h11"/>
+     <path d="M54 26h12v58l-6 12-6-12z"/><path d="M54 38h12"/>
+     <path d="M81 32h11v52l-5.5 12L81 84z"/><path d="M81 44h11"/>`,
+  5:`<rect x="24" y="20" width="22" height="28" rx="5"/><path d="M35 48v52"/>
+     <ellipse cx="60" cy="33" rx="11" ry="14"/><path d="M60 47v53"/>
+     <path d="M85 22v78M78 28c-5 16-1 27 7 35M92 28c5 16 1 27-7 35"/>`,
+  6:`<path d="M28 100 L47 28M92 100 L73 28"/><path d="M47 28h26"/>
+     <path d="M44 44h32M42 59h36M39 74h42M36 89h48"/>`,
+  7:`<path d="M28 46h64M28 72h64M28 98h64"/><path d="M31 40v62M89 40v62"/>
+     <rect x="42" y="24" width="13" height="22" rx="4"/><path d="M46 24v-6h5v6"/>
+     <path d="M66 34c0-6 9-6 9 0v12h-9z"/>`,
+  8:`<path d="M28 70h64l-6 27a5 5 0 0 1-5 4H39a5 5 0 0 1-5-4z"/>
+     <path d="M46 22h28a5 5 0 0 1 5 5v43H41V27a5 5 0 0 1 5-5z"/><path d="M44 52h32"/>
+     <circle cx="60" cy="86" r="4.5"/><circle cx="50" cy="80" r="2.6"/><circle cx="70" cy="80" r="2.6"/>`,
+  9:`<rect x="33" y="30" width="54" height="66" rx="9"/><path d="M48 34v58M60 34v58M72 34v58"/>
+     <path d="M50 30V19h20v11"/><rect x="52" y="13" width="16" height="6" rx="3"/>
+     <circle cx="44" cy="103" r="5.5"/><circle cx="76" cy="103" r="5.5"/>`,
+  10:`<path d="M48 60h24a9 9 0 0 1 9 9v22a9 9 0 0 1-9 9H48a9 9 0 0 1-9-9V69a9 9 0 0 1 9-9z"/>
+      <path d="M52 60v-9h16v9"/><path d="M58 51L42 16M60 51L57 12M62 51L78 16M61 51L70 14M59 51L49 15"/>`,
+  11:`<rect x="32" y="22" width="56" height="76" rx="4"/><path d="M43 22v76"/>
+      <path d="M52 44h26M52 57h26M52 70h17"/><path d="M79 22v76"/>`,
+  12:`<rect x="26" y="34" width="68" height="54" rx="7"/><path d="M26 46h68"/>
+      <circle cx="60" cy="68" r="9"/><circle cx="60" cy="68" r="3.4"/>
+      <path d="M12 55l8 6-8 6M108 55l-8 6 8 6"/>`,
+  13:`<path d="M60 42c0-7 8-6 8-12a7 7 0 1 0-8 7"/>
+      <path d="M60 42 26 79a4 4 0 0 0 3 7h62a4 4 0 0 0 3-7z"/><path d="M31 79h58"/>`,
+  14:`<path d="M37 54h46v40a9 9 0 0 1-9 9H46a9 9 0 0 1-9-9z"/><rect x="32" y="41" width="56" height="13" rx="4"/>
+      <circle cx="60" cy="24" r="9.5"/><path d="M60 33.5V41"/><path d="M46 70l28 16M74 70L46 86"/>`,
+  15:`<rect x="29" y="47" width="62" height="53" rx="6"/><path d="M22 47 60 18l38 29"/>
+      <circle cx="60" cy="74" r="15"/><path d="M38 58v32M45 58v32"/>`,
+  16:`<path d="M26 58h68v30a5 5 0 0 1-5 5H31a5 5 0 0 1-5-5z"/><path d="M31 51h58M36 44h48"/>
+      <path d="M36 71q6-6 12 0t12 0 12 0 12 0"/><path d="M36 82q6-6 12 0t12 0 12 0 12 0"/>`,
+  17:`<rect x="31" y="34" width="58" height="58" rx="8"/><path d="M31 52h58"/>
+      <path d="M46 62v22M60 62v22M74 62v22"/>
+      <rect x="42.5" y="57" width="7" height="9" rx="3.5"/><rect x="56.5" y="57" width="7" height="9" rx="3.5"/><rect x="70.5" y="57" width="7" height="9" rx="3.5"/>
+      <path d="M42 43h6M57 43h6M72 43h6"/>`,
+  18:`<rect x="24" y="56" width="72" height="42" rx="8"/><path d="M24 67h72"/><circle cx="87" cy="67" r="3"/>
+      <rect x="36" y="26" width="48" height="30" rx="7"/><path d="M36 35h48"/><circle cx="76" cy="35" r="2.6"/>
+      <path d="M50 26v-6h20v6"/>`,
+  19:`<rect x="43" y="42" width="34" height="60" rx="11"/><rect x="51" y="20" width="18" height="13" rx="4"/>
+      <path d="M53 33h14v9"/><path d="M43 58h34M43 68h34M43 78h34"/>`,
+  20:`<circle cx="45" cy="60" r="23"/><circle cx="45" cy="60" r="9.5"/>
+      <circle cx="81" cy="76" r="16"/><circle cx="81" cy="76" r="6.5"/>
+      <path d="M66 26h28l-5 6 5 6H66z"/>`,
+  21:`<rect x="31" y="18" width="58" height="84" rx="9"/><circle cx="60" cy="30" r="4.5"/>
+      <rect x="39" y="42" width="42" height="52" rx="5"/><path d="M49 52v32M60 49v38M71 54v28"/>`,
+  22:`<path d="M26 52c0-13 15-19 34-19s34 6 34 19-15 19-34 19-34-6-34-19z"/>
+      <path d="M50 69q10 9 20 0"/><path d="M26 52c-8 3-10 11-6 17M94 52c8 3 10 11 6 17"/>
+      <path d="M42 88c5 0 8 4 8 8s-3 8-8 8-8-4-8-8 3-8 8-8z"/>
+      <path d="M74 88c5 0 8 4 8 8s-3 8-8 8-8-4-8-8 3-8 8-8z"/>`,
+  23:`<rect x="22" y="40" width="76" height="50" rx="9"/>
+      <circle cx="36" cy="54" r="2.2"/><circle cx="52" cy="54" r="2.2"/><circle cx="68" cy="54" r="2.2"/><circle cx="84" cy="54" r="2.2"/>
+      <circle cx="44" cy="65" r="2.2"/><circle cx="60" cy="65" r="2.2"/><circle cx="76" cy="65" r="2.2"/>
+      <circle cx="36" cy="76" r="2.2"/><circle cx="52" cy="76" r="2.2"/><circle cx="68" cy="76" r="2.2"/><circle cx="84" cy="76" r="2.2"/>
+      <path d="M55 30c0 4 6 4 6 0 0-3-3-7-3-7s-3 4-3 7z"/>`,
+  24:`<rect x="35" y="52" width="50" height="44" rx="7"/><path d="M35 68h50"/>
+      <rect x="54" y="62" width="12" height="10" rx="3"/>
+      <path d="M42 52c0-24 36-24 36 0"/>
+      <circle cx="60" cy="85" r="3.4"/><circle cx="51" cy="80" r="2"/><circle cx="69" cy="80" r="2"/>`,
+};
+const svgOf = id =>
+  `<svg class="ill" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ILL[id]}</svg>`;
+
+/* ============================================================
+   i18n — 기본 언어 영어(en), 베트남어(vi)·한국어(ko) 지원
+   ============================================================ */
+const LANGS = ['en', 'vi', 'ko'];
+const LOCALE = {en:'en-US', vi:'vi-VN', ko:'ko-KR'};
+const LANG_KEY = 'dapalayu_lang';
+
+let lang = (() => {
+  try{ const s = localStorage.getItem(LANG_KEY); if(LANGS.includes(s)) return s; }catch(e){}
+  return 'en';
+})();
+
+const STR = {
+en:{
+  docTitle:'DAPALAYU — Everyday Goods',
+  wordmark:'DAPALAYU',
+  notice:'Free delivery on orders over 500,000 ₫ · Same-day dispatch for orders placed before 3pm',
+  searchPh:'Search products',
+  cart:'Cart', login:'Login', account:'Account',
+  heroEyebrow:'No. 01 — Selected for daily use',
+  heroTitle:'Everyday things,<br>chosen to last',
+  heroLede:'From the kitchen to storage, stationery and pet supplies. Twenty-four things worth keeping, picked without chasing trends.',
+  heroCta:'View all products',
+  kShopAll:'Shop all', kSearch:'Search',
+  tAll:'All products', tSearch:'Results for "{q}"',
+  sortLabel:'Sort', sortPopular:'Most popular', sortLow:'Price: low to high',
+  sortHigh:'Price: high to low', sortDiscount:'Biggest discount', sortReview:'Most reviewed',
+  flagBest:'Best', flagNew:'New', flagOff:'{n}% off',
+  rate:'★ {r} · {n} reviews',
+  emptyTitle:'Nothing here.', emptyDesc:'No products matched. Try another keyword.',
+  mOption:'Option', mQuantity:'Quantity', mTotal:'Total', mClose:'Close', mAdd:'Add to cart',
+  cEmptyTitle:'Empty.', cEmptyDesc:'Your cart has no items yet.', cContinue:'Continue shopping',
+  cSubtotal:'Subtotal', cShipping:'Delivery', cFree:'Free', cTotal:'Estimated total',
+  cOrder:'Place order · {amt}', cRemain:'Add {amt} more for free delivery', cMet:'Free delivery unlocked',
+  cDelete:'Remove',
+  aLogin:'Log in', aSignup:'Sign up', aEmail:'Email', aPassword:'Password',
+  aKeep:'Keep me signed in', aNoAccount:'No account yet?', aHaveAccount:'Already have an account?',
+  aName:'Name', aPhone:'Mobile', aPwConfirm:'Confirm password',
+  aPwHint:'At least 8 characters, mixing letters and numbers',
+  aTerms1:'<b>[Required]</b> I agree to the Terms of Service',
+  aTerms2:'<b>[Required]</b> I agree to the collection and use of personal data',
+  aTerms3:'[Optional] I agree to receive marketing messages',
+  aSignupBtn:'Create account',
+  aDemoNote:'This is a demo account system. Nothing is sent to a server — everything stays in this browser. Do not enter a password you actually use.',
+  ePhFormat:'Check the mobile number format', eEmailFormat:'That email address is not valid',
+  ePwRequired:'Enter your password', eLoginFail:'Email or password does not match',
+  eNameMin:'Enter at least 2 characters', eEmailDup:'That email is already registered',
+  ePwWeak:'Use at least 8 characters with letters and numbers', ePwMismatch:'Passwords do not match',
+  eTerms:'Please accept the required terms',
+  accKicker:'Account', accHi:'{name}', accJoined:'{email} · joined {date}',
+  navProfile:'Profile', navAddresses:'Addresses', navOrders:'Orders', navSecurity:'Security', navLogout:'Log out',
+  gateTitle:'Members only.', gateDesc:'Log in to see your account.', gateBtn:'Log in / Sign up',
+  pfTitle:'Profile', pfSub:'Used to prefill your checkout details.',
+  pfEmailHint:'Email is your account identifier and cannot be changed.',
+  pfMarketing:'Communication', pfMktEmail:'Email me offers and new arrivals',
+  pfMktSms:'Text me delivery and sale alerts', pfSave:'Save changes',
+  adTitle:'Addresses', adSub:'Orders are shipped to the address marked as default.',
+  adNone:'No address saved yet. You need at least one to place an order.',
+  adDefault:'Default', adSetDefault:'Make default', adEdit:'Edit', adDelete:'Delete',
+  adNew:'＋ Add new address', adNewTitle:'New address', adEditTitle:'Edit address',
+  adKickerNew:'New address', adKickerEdit:'Edit address',
+  adLabel:'Label', adLabelPh:'Home / Office', adRecipient:'Recipient', adPhone:'Phone',
+  adStreet:'Street address', adStreetPh:'House number and street',
+  adWard:'Ward', adWardPh:'Ben Nghe Ward', adDistrict:'District', adDistrictPh:'District 1',
+  adProvince:'Province / City', adProvincePh:'Ho Chi Minh City',
+  adAsDefault:'Set as default address', adFirstAuto:' (first address is set automatically)',
+  adSave:'Save', adCancel:'Cancel', adConfirmDel:'Delete the address "{label}"?',
+  eStreet:'Enter a street address', eWard:'Enter a ward', eDistrict:'Enter a district', eProvince:'Enter a province or city',
+  odTitle:'Orders', odTitleN:'Orders ({n})', odSub:'Most recent first.',
+  odNoneSub:'You have not ordered anything yet.', odGoShop:'Browse products',
+  odPaid:'Paid', odQty:'{n} pcs', odLine:'Items {sub} · Delivery {ship}', odShipTo:'Ship to',
+  scTitle:'Security', scSub:'Change your password or delete your account.',
+  scCurrent:'Current password', scNew:'New password', scConfirm:'Confirm new password', scChange:'Change password',
+  scWdTitle:'Delete account',
+  scWdDesc:'Your account will be removed along with {a} address(es) and {o} order(s). This cannot be undone.',
+  scWdBtn:'Delete account', scWdConfirm:'Your account and all data will be deleted. Continue?',
+  eCurPw:'Current password does not match', eSamePw:'Choose a value different from your current password',
+  eNewMismatch:'New passwords do not match',
+  tWelcome:'Welcome back, {name}', tSignedUp:'Account created · {name}',
+  tAdded:'Added to cart · {n} pcs', tOrdered:'Order received · {amt}',
+  tLoginRequired:'Log in to place an order', tAddrRequired:'Add a delivery address first',
+  tLoggedOut:'Signed out', tProfileSaved:'Profile saved', tAddrSaved:'Address saved',
+  tAddrDeleted:'Address deleted', tDefaultChanged:'Default address changed',
+  tPwChanged:'Password changed', tWithdrawn:'Account deleted',
+  fShop:'Shop', fNew:'New arrivals', fBest:'Best sellers', fCurated:'Curated sets', fGift:'Gifting',
+  fSupport:'Support', fNotice:'Notices', fFaq:'FAQ', fInquiry:'Contact us', fReturns:'Returns & exchanges',
+  fCompany:'Company', fTerms:'Terms of service', fPrivacy:'Privacy policy', fPartner:'Sell with us',
+  fBiz:'DAPALAYU Co., Ltd. · Director Lee Seonghyeun<br>Business registration no. 0316000000, issued by HCMC DPI<br>72 Le Thanh Ton, Ben Nghe Ward, District 1, Ho Chi Minh City<br>Hotline 1900 0000 (Mon–Fri 09:00–18:00)',
+},
+vi:{
+  docTitle:'DAPALAYU — Đồ dùng mỗi ngày',
+  wordmark:'DAPALAYU',
+  notice:'Miễn phí giao hàng cho đơn từ 500.000 ₫ · Giao trong ngày với đơn đặt trước 15:00',
+  searchPh:'Tìm sản phẩm',
+  cart:'Giỏ hàng', login:'Đăng nhập', account:'Tài khoản',
+  heroEyebrow:'No. 01 — Chọn cho ngày thường',
+  heroTitle:'Đồ dùng mỗi ngày,<br>chọn để dùng lâu',
+  heroLede:'Từ nhà bếp đến lưu trữ, văn phòng phẩm và đồ thú cưng. Hai mươi tư món đáng giữ lại, chọn mà không chạy theo xu hướng.',
+  heroCta:'Xem tất cả sản phẩm',
+  kShopAll:'Tất cả', kSearch:'Tìm kiếm',
+  tAll:'Tất cả sản phẩm', tSearch:'Kết quả cho "{q}"',
+  sortLabel:'Sắp xếp', sortPopular:'Phổ biến nhất', sortLow:'Giá thấp đến cao',
+  sortHigh:'Giá cao đến thấp', sortDiscount:'Giảm giá nhiều nhất', sortReview:'Nhiều đánh giá nhất',
+  flagBest:'Bán chạy', flagNew:'Mới', flagOff:'Giảm {n}%',
+  rate:'★ {r} · {n} đánh giá',
+  emptyTitle:'Không có gì ở đây.', emptyDesc:'Không tìm thấy sản phẩm nào. Thử từ khoá khác nhé.',
+  mOption:'Phân loại', mQuantity:'Số lượng', mTotal:'Tổng cộng', mClose:'Đóng', mAdd:'Thêm vào giỏ',
+  cEmptyTitle:'Giỏ trống.', cEmptyDesc:'Giỏ hàng chưa có sản phẩm nào.', cContinue:'Tiếp tục mua sắm',
+  cSubtotal:'Tạm tính', cShipping:'Phí giao hàng', cFree:'Miễn phí', cTotal:'Ước tính thanh toán',
+  cOrder:'Đặt hàng · {amt}', cRemain:'Mua thêm {amt} để được miễn phí giao hàng', cMet:'Đã đủ điều kiện miễn phí giao hàng',
+  cDelete:'Xoá',
+  aLogin:'Đăng nhập', aSignup:'Đăng ký', aEmail:'Email', aPassword:'Mật khẩu',
+  aKeep:'Duy trì đăng nhập', aNoAccount:'Chưa có tài khoản?', aHaveAccount:'Đã có tài khoản?',
+  aName:'Họ tên', aPhone:'Số điện thoại', aPwConfirm:'Xác nhận mật khẩu',
+  aPwHint:'Tối thiểu 8 ký tự, gồm cả chữ và số',
+  aTerms1:'<b>[Bắt buộc]</b> Tôi đồng ý với Điều khoản dịch vụ',
+  aTerms2:'<b>[Bắt buộc]</b> Tôi đồng ý cho thu thập và sử dụng dữ liệu cá nhân',
+  aTerms3:'[Tuỳ chọn] Tôi đồng ý nhận thông tin khuyến mãi',
+  aSignupBtn:'Tạo tài khoản',
+  aDemoNote:'Đây là hệ thống tài khoản demo. Không có dữ liệu nào được gửi lên máy chủ, tất cả chỉ lưu trong trình duyệt này. Đừng nhập mật khẩu bạn đang dùng thật.',
+  ePhFormat:'Kiểm tra lại định dạng số điện thoại', eEmailFormat:'Địa chỉ email không hợp lệ',
+  ePwRequired:'Vui lòng nhập mật khẩu', eLoginFail:'Email hoặc mật khẩu không đúng',
+  eNameMin:'Nhập tối thiểu 2 ký tự', eEmailDup:'Email này đã được đăng ký',
+  ePwWeak:'Dùng tối thiểu 8 ký tự, gồm cả chữ và số', ePwMismatch:'Mật khẩu không khớp',
+  eTerms:'Vui lòng đồng ý các điều khoản bắt buộc',
+  accKicker:'Tài khoản', accHi:'{name}', accJoined:'{email} · tham gia {date}',
+  navProfile:'Hồ sơ', navAddresses:'Địa chỉ', navOrders:'Đơn hàng', navSecurity:'Bảo mật', navLogout:'Đăng xuất',
+  gateTitle:'Chỉ dành cho thành viên.', gateDesc:'Đăng nhập để xem tài khoản của bạn.', gateBtn:'Đăng nhập / Đăng ký',
+  pfTitle:'Hồ sơ', pfSub:'Dùng để điền sẵn thông tin khi thanh toán.',
+  pfEmailHint:'Email là định danh tài khoản nên không thể thay đổi.',
+  pfMarketing:'Nhận thông tin', pfMktEmail:'Nhận ưu đãi và hàng mới qua email',
+  pfMktSms:'Nhận thông báo giao hàng và khuyến mãi qua SMS', pfSave:'Lưu thay đổi',
+  adTitle:'Địa chỉ', adSub:'Đơn hàng sẽ được giao tới địa chỉ được đặt làm mặc định.',
+  adNone:'Chưa có địa chỉ nào. Cần ít nhất một địa chỉ để đặt hàng.',
+  adDefault:'Mặc định', adSetDefault:'Đặt mặc định', adEdit:'Sửa', adDelete:'Xoá',
+  adNew:'＋ Thêm địa chỉ mới', adNewTitle:'Địa chỉ mới', adEditTitle:'Sửa địa chỉ',
+  adKickerNew:'New address', adKickerEdit:'Edit address',
+  adLabel:'Tên gợi nhớ', adLabelPh:'Nhà / Công ty', adRecipient:'Người nhận', adPhone:'Số điện thoại',
+  adStreet:'Địa chỉ', adStreetPh:'Số nhà và tên đường',
+  adWard:'Phường / Xã', adWardPh:'Phường Bến Nghé', adDistrict:'Quận / Huyện', adDistrictPh:'Quận 1',
+  adProvince:'Tỉnh / Thành phố', adProvincePh:'TP. Hồ Chí Minh',
+  adAsDefault:'Đặt làm địa chỉ mặc định', adFirstAuto:' (địa chỉ đầu tiên được đặt tự động)',
+  adSave:'Lưu', adCancel:'Huỷ', adConfirmDel:'Xoá địa chỉ "{label}"?',
+  eStreet:'Nhập số nhà và tên đường', eWard:'Nhập phường / xã', eDistrict:'Nhập quận / huyện', eProvince:'Nhập tỉnh / thành phố',
+  odTitle:'Đơn hàng', odTitleN:'Đơn hàng ({n})', odSub:'Đơn mới nhất hiển thị trước.',
+  odNoneSub:'Bạn chưa đặt đơn hàng nào.', odGoShop:'Xem sản phẩm',
+  odPaid:'Đã thanh toán', odQty:'{n} cái', odLine:'Hàng {sub} · Giao hàng {ship}', odShipTo:'Giao tới',
+  scTitle:'Bảo mật', scSub:'Đổi mật khẩu hoặc xoá tài khoản.',
+  scCurrent:'Mật khẩu hiện tại', scNew:'Mật khẩu mới', scConfirm:'Xác nhận mật khẩu mới', scChange:'Đổi mật khẩu',
+  scWdTitle:'Xoá tài khoản',
+  scWdDesc:'Tài khoản sẽ bị xoá cùng {a} địa chỉ và {o} đơn hàng. Thao tác này không thể hoàn tác.',
+  scWdBtn:'Xoá tài khoản', scWdConfirm:'Tài khoản và toàn bộ dữ liệu sẽ bị xoá. Tiếp tục?',
+  eCurPw:'Mật khẩu hiện tại không đúng', eSamePw:'Hãy chọn mật khẩu khác với mật khẩu hiện tại',
+  eNewMismatch:'Mật khẩu mới không khớp',
+  tWelcome:'Chào mừng trở lại, {name}', tSignedUp:'Đã tạo tài khoản · {name}',
+  tAdded:'Đã thêm vào giỏ · {n} cái', tOrdered:'Đã nhận đơn hàng · {amt}',
+  tLoginRequired:'Đăng nhập để đặt hàng', tAddrRequired:'Vui lòng thêm địa chỉ giao hàng trước',
+  tLoggedOut:'Đã đăng xuất', tProfileSaved:'Đã lưu hồ sơ', tAddrSaved:'Đã lưu địa chỉ',
+  tAddrDeleted:'Đã xoá địa chỉ', tDefaultChanged:'Đã đổi địa chỉ mặc định',
+  tPwChanged:'Đã đổi mật khẩu', tWithdrawn:'Đã xoá tài khoản',
+  fShop:'Mua sắm', fNew:'Hàng mới về', fBest:'Bán chạy', fCurated:'Bộ sưu tập', fGift:'Quà tặng',
+  fSupport:'Hỗ trợ', fNotice:'Thông báo', fFaq:'Câu hỏi thường gặp', fInquiry:'Liên hệ', fReturns:'Đổi trả',
+  fCompany:'Công ty', fTerms:'Điều khoản dịch vụ', fPrivacy:'Chính sách bảo mật', fPartner:'Hợp tác bán hàng',
+  fBiz:'Công ty TNHH DAPALAYU · Giám đốc Lee Seonghyeun<br>GPKD số 0316000000 do Sở KH&amp;ĐT TP.HCM cấp<br>72 Lê Thánh Tôn, P. Bến Nghé, Q.1, TP. Hồ Chí Minh<br>Hotline 1900 0000 (T2–T6, 09:00–18:00)',
+},
+ko:{
+  docTitle:'DAPALAYU — 생활 잡화',
+  wordmark:'다팔아유',
+  notice:'50만 동 이상 무료배송 · 오후 3시 이전 주문 시 당일 출고',
+  searchPh:'상품 검색',
+  cart:'장바구니', login:'로그인', account:'내 계정',
+  heroEyebrow:'No. 01 — 매일 쓰는 물건',
+  heroTitle:'생활에 필요한 잡화를<br>오래 쓰도록 골랐습니다',
+  heroLede:'주방부터 수납, 문구, 반려용품까지. 유행을 타지 않고 매일 손이 가는 물건만 스물네 가지로 추렸습니다.',
+  heroCta:'전체 상품 보기',
+  kShopAll:'전체', kSearch:'검색',
+  tAll:'전체 상품', tSearch:'"{q}" 검색 결과',
+  sortLabel:'정렬', sortPopular:'인기순', sortLow:'낮은 가격순',
+  sortHigh:'높은 가격순', sortDiscount:'할인율순', sortReview:'리뷰 많은순',
+  flagBest:'베스트', flagNew:'신상', flagOff:'{n}% 할인',
+  rate:'★ {r} · 리뷰 {n}',
+  emptyTitle:'검색 결과 없음', emptyDesc:'찾으시는 상품이 없습니다. 다른 키워드로 검색해 보세요.',
+  mOption:'옵션', mQuantity:'수량', mTotal:'주문금액', mClose:'닫기', mAdd:'장바구니 담기',
+  cEmptyTitle:'비어 있음', cEmptyDesc:'담긴 상품이 없습니다.', cContinue:'쇼핑 계속하기',
+  cSubtotal:'상품금액', cShipping:'배송비', cFree:'무료', cTotal:'결제 예상금액',
+  cOrder:'{amt} 주문하기', cRemain:'{amt} 더 담으면 무료배송', cMet:'무료배송 조건을 채웠습니다',
+  cDelete:'삭제',
+  aLogin:'로그인', aSignup:'회원가입', aEmail:'이메일', aPassword:'비밀번호',
+  aKeep:'로그인 상태 유지', aNoAccount:'계정이 없으신가요?', aHaveAccount:'이미 계정이 있으신가요?',
+  aName:'이름', aPhone:'휴대폰', aPwConfirm:'비밀번호 확인',
+  aPwHint:'영문과 숫자를 섞어 8자 이상',
+  aTerms1:'<b>[필수]</b> 이용약관에 동의합니다',
+  aTerms2:'<b>[필수]</b> 개인정보 수집·이용에 동의합니다',
+  aTerms3:'[선택] 마케팅 정보 수신에 동의합니다',
+  aSignupBtn:'가입하기',
+  aDemoNote:'데모용 계정 시스템입니다. 입력한 정보는 서버로 전송되지 않고 이 브라우저에만 저장됩니다. 실제로 쓰는 비밀번호는 입력하지 마세요.',
+  ePhFormat:'휴대폰 번호 형식을 확인하세요', eEmailFormat:'이메일 형식이 올바르지 않습니다',
+  ePwRequired:'비밀번호를 입력하세요', eLoginFail:'이메일 또는 비밀번호가 일치하지 않습니다',
+  eNameMin:'2자 이상 입력하세요', eEmailDup:'이미 가입된 이메일입니다',
+  ePwWeak:'영문과 숫자를 포함해 8자 이상이어야 합니다', ePwMismatch:'비밀번호가 일치하지 않습니다',
+  eTerms:'필수 약관에 동의해 주세요',
+  accKicker:'내 계정', accHi:'{name} 님', accJoined:'{email} · {date} 가입',
+  navProfile:'프로필', navAddresses:'배송지', navOrders:'주문 내역', navSecurity:'보안', navLogout:'로그아웃',
+  gateTitle:'회원 전용', gateDesc:'계정 정보를 보려면 로그인해 주세요.', gateBtn:'로그인 / 회원가입',
+  pfTitle:'프로필', pfSub:'주문서에 기본으로 채워지는 정보입니다.',
+  pfEmailHint:'이메일은 계정 식별자라 변경할 수 없습니다.',
+  pfMarketing:'수신 동의', pfMktEmail:'이메일로 기획전·혜택 소식 받기',
+  pfMktSms:'SMS로 배송·특가 알림 받기', pfSave:'변경사항 저장',
+  adTitle:'배송지', adSub:'기본 배송지로 지정된 주소로 주문이 접수됩니다.',
+  adNone:'등록된 배송지가 없습니다. 주문하려면 배송지가 하나 이상 필요합니다.',
+  adDefault:'기본 배송지', adSetDefault:'기본으로', adEdit:'수정', adDelete:'삭제',
+  adNew:'＋ 새 배송지 추가', adNewTitle:'새 배송지', adEditTitle:'배송지 수정',
+  adKickerNew:'New address', adKickerEdit:'Edit address',
+  adLabel:'배송지명', adLabelPh:'집 / 회사', adRecipient:'받는 분', adPhone:'연락처',
+  adStreet:'주소', adStreetPh:'번지와 도로명',
+  adWard:'프엉 (동)', adWardPh:'Phường Bến Nghé', adDistrict:'꾸언 (군·구)', adDistrictPh:'Quận 1',
+  adProvince:'성 · 직할시', adProvincePh:'TP. Hồ Chí Minh',
+  adAsDefault:'기본 배송지로 설정', adFirstAuto:' (첫 배송지는 자동 지정)',
+  adSave:'저장', adCancel:'취소', adConfirmDel:'배송지 "{label}"을(를) 삭제할까요?',
+  eStreet:'번지와 도로명을 입력하세요', eWard:'프엉(동)을 입력하세요', eDistrict:'꾸언(군·구)을 입력하세요', eProvince:'성 또는 직할시를 입력하세요',
+  odTitle:'주문 내역', odTitleN:'주문 내역 ({n})', odSub:'최근 주문부터 표시됩니다.',
+  odNoneSub:'아직 주문한 상품이 없습니다.', odGoShop:'상품 보러가기',
+  odPaid:'결제완료', odQty:'{n}개', odLine:'상품 {sub} · 배송비 {ship}', odShipTo:'배송지',
+  scTitle:'보안', scSub:'비밀번호를 바꾸거나 계정을 삭제할 수 있습니다.',
+  scCurrent:'현재 비밀번호', scNew:'새 비밀번호', scConfirm:'새 비밀번호 확인', scChange:'비밀번호 변경',
+  scWdTitle:'회원 탈퇴',
+  scWdDesc:'계정과 함께 배송지 {a}건, 주문 내역 {o}건이 모두 삭제됩니다. 되돌릴 수 없습니다.',
+  scWdBtn:'계정 삭제', scWdConfirm:'계정과 모든 데이터가 삭제됩니다. 계속할까요?',
+  eCurPw:'현재 비밀번호가 일치하지 않습니다', eSamePw:'현재 비밀번호와 다른 값을 입력하세요',
+  eNewMismatch:'새 비밀번호가 일치하지 않습니다',
+  tWelcome:'{name} 님, 환영합니다', tSignedUp:'가입이 완료되었습니다 · {name} 님',
+  tAdded:'장바구니에 담았습니다 · {n}개', tOrdered:'주문이 접수되었습니다 · {amt}',
+  tLoginRequired:'주문하려면 로그인이 필요합니다', tAddrRequired:'배송지를 먼저 등록해 주세요',
+  tLoggedOut:'로그아웃했습니다', tProfileSaved:'프로필을 저장했습니다', tAddrSaved:'배송지를 저장했습니다',
+  tAddrDeleted:'배송지를 삭제했습니다', tDefaultChanged:'기본 배송지를 변경했습니다',
+  tPwChanged:'비밀번호를 변경했습니다', tWithdrawn:'계정이 삭제되었습니다',
+  fShop:'쇼핑', fNew:'신상품', fBest:'베스트', fCurated:'기획전', fGift:'선물하기',
+  fSupport:'고객지원', fNotice:'공지사항', fFaq:'자주 묻는 질문', fInquiry:'1:1 문의', fReturns:'교환 · 반품',
+  fCompany:'회사', fTerms:'이용약관', fPrivacy:'개인정보처리방침', fPartner:'입점 문의',
+  fBiz:'DAPALAYU 유한책임회사 · 대표 이성현<br>사업자등록번호 0316000000 (호치민시 기획투자국 발급)<br>호치민시 1군 벤응에동 레탄톤 72<br>핫라인 1900 0000 (월–금 09:00–18:00)',
+},
+};
+
+function t(key, vars){
+  let s = (STR[lang] && STR[lang][key]) ?? STR.en[key] ?? key;
+  if(vars) for(const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+/* ============================================================ 데이터 ============================================================ */
+const CATS = [
+  {id:'all',     en:'All',        vi:'Tất cả',          ko:'전체'},
+  {id:'kitchen', en:'Kitchen',    vi:'Nhà bếp',         ko:'주방'},
+  {id:'living',  en:'Living',     vi:'Gia dụng',        ko:'생활'},
+  {id:'storage', en:'Storage',    vi:'Lưu trữ',         ko:'수납·정리'},
+  {id:'station', en:'Stationery', vi:'Văn phòng phẩm',  ko:'문구'},
+  {id:'bath',    en:'Bath',       vi:'Nhà tắm',         ko:'욕실'},
+  {id:'pet',     en:'Pet',        vi:'Thú cưng',        ko:'반려용품'},
+  {id:'travel',  en:'Travel',     vi:'Du lịch',         ko:'여행'},
+];
+const catName = id => (CATS.find(c => c.id === id) || {})[lang] || id;
+
+// p:판매가(VND) o:정가(0=정가판매) r:평점 rv:리뷰수
+const P = [
+{id:1, c:'kitchen', p:319000, o:469000, r:4.8, rv:2314, badge:'BEST',
+ n:{en:'Insulated Steel Tumbler 500ml', vi:'Bình giữ nhiệt inox 500ml', ko:'스테인리스 보온 텀블러 500ml'},
+ d:{en:'Keeps drinks hot for 6 hours and cold for 12. The one-touch lid opens with a single hand, and the mouth is wide enough to drop ice cubes in whole.',
+    vi:'Giữ nóng 6 giờ, giữ lạnh 12 giờ. Nắp bật một chạm mở được bằng một tay, miệng rộng bỏ vừa viên đá.',
+    ko:'6시간 보온, 12시간 보냉. 원터치 개폐라 한 손으로 열리고 입구가 넓어 얼음도 그대로 들어갑니다.'},
+ o_:{en:['Matte Black','Ivory','Sage Green'], vi:['Đen nhám','Trắng ngà','Xanh xô thơm'], ko:['매트 블랙','아이보리','세이지 그린']}},
+{id:2, c:'storage', p:449000, o:619000, r:4.7, rv:1180, badge:'SALE',
+ n:{en:'Rattan Storage Baskets, Set of 3', vi:'Bộ 3 giỏ mây đựng đồ', ko:'라탄 수납 바구니 3종 세트'},
+ d:{en:'Small, medium and large. They nest together for storage, and the side handles let you pull one straight off a shelf.',
+    vi:'Gồm size nhỏ, vừa và lớn. Xếp lồng vào nhau khi cất, có quai hai bên để kéo xuống khỏi kệ dễ dàng.',
+    ko:'소·중·대 3개 구성. 겹쳐 보관되고 손잡이가 있어 선반 위에서 그대로 꺼내 쓰기 좋습니다.'},
+ o_:{en:['Natural','Brown'], vi:['Màu tự nhiên','Nâu'], ko:['내추럴','브라운']}},
+{id:3, c:'living', p:239000, o:359000, r:4.5, rv:3420, badge:'SALE',
+ n:{en:'Cordless Handheld Fan', vi:'Quạt cầm tay không dây', ko:'무선 미니 핸디 선풍기'},
+ d:{en:'Three speeds and up to 8 hours per charge. It folds flat to sit on a desk, so it works two ways.',
+    vi:'Ba mức gió, dùng tối đa 8 giờ mỗi lần sạc. Gập lại để đứng trên bàn, dùng được hai kiểu.',
+    ko:'3단 풍속, 최대 8시간 사용. 접어서 탁상용으로도 쓰는 2way 구조입니다.'},
+ o_:{en:['White','Mint','Pink'], vi:['Trắng','Xanh bạc hà','Hồng'], ko:['화이트','민트','핑크']}},
+{id:4, c:'station', p:109000, o:0, r:4.9, rv:5602, badge:'BEST',
+ n:{en:'3-Colour Low-Viscosity Pen 0.5mm', vi:'Bút bi 3 màu mực trơn 0.5mm', ko:'3색 저점도 볼펜 0.5mm'},
+ d:{en:'Low-viscosity ink that does not smudge. The kind of pen people rebuy every year for the way it writes.',
+    vi:'Mực trơn không lem. Loại bút mà nhiều người mua lại hằng năm chỉ vì cảm giác viết.',
+    ko:'번짐 없는 저점도 잉크. 필기감 때문에 매년 재구매하는 스테디셀러입니다.'},
+ o_:{en:['Black barrel','Navy barrel'], vi:['Thân đen','Thân xanh navy'], ko:['블랙 바디','네이비 바디']}},
+{id:5, c:'kitchen', p:349000, o:489000, r:4.6, rv:842, badge:'',
+ n:{en:'Silicone Kitchen Utensils, Set of 6', vi:'Bộ 6 dụng cụ nấu ăn silicone', ko:'실리콘 주방 조리도구 6종'},
+ d:{en:'Heat resistant to 230°C and gentle on non-stick pans. Six pieces with a stand included.',
+    vi:'Chịu nhiệt 230°C, không làm xước chảo chống dính. Bộ 6 món kèm giá đựng.',
+    ko:'내열 230℃, 코팅팬에 흠집이 나지 않는 실리콘. 거치대 포함 6종 구성입니다.'},
+ o_:{en:['Cream','Charcoal'], vi:['Kem','Xám than'], ko:['크림','차콜']}},
+{id:6, c:'living', p:649000, o:839000, r:4.4, rv:610, badge:'',
+ n:{en:'Folding Wooden Drying Rack', vi:'Giàn phơi gỗ gấp gọn', ko:'접이식 우드 빨래건조대'},
+ d:{en:'A solid wood frame with three tiers that extend. Folds down to 9cm to slide into a gap.',
+    vi:'Khung gỗ nguyên khối, ba tầng mở rộng. Gấp lại chỉ dày 9cm, nhét vừa khe hẹp.',
+    ko:'원목 프레임에 3단 확장. 접으면 두께 9cm로 틈새에 보관됩니다.'},
+ o_:{en:['Natural wood','Whitewash'], vi:['Gỗ tự nhiên','Sơn trắng'], ko:['원목','화이트워시']}},
+{id:7, c:'bath', p:299000, o:409000, r:4.3, rv:1502, badge:'SALE',
+ n:{en:'Three-Tier Bathroom Corner Shelf', vi:'Kệ góc nhà tắm 3 tầng', ko:'욕실 코너 3단 선반'},
+ d:{en:'Sticks on firmly without drilling. The open base drains, so scum builds up more slowly.',
+    vi:'Dán chắc không cần khoan tường. Đáy thoát nước nên ít đóng cặn hơn.',
+    ko:'타공 없이 강력 접착. 물 빠짐 설계라 물때가 덜 생깁니다.'},
+ o_:{en:['White','Black'], vi:['Trắng','Đen'], ko:['화이트','블랙']}},
+{id:8, c:'pet', p:559000, o:729000, r:4.7, rv:986, badge:'NEW',
+ n:{en:'Pet Water Fountain 2L', vi:'Máy lọc nước cho thú cưng 2L', ko:'반려동물 자동 급수기 2L'},
+ d:{en:'A triple filter with a quiet 28dB pump. A window on the side shows the water level at a glance.',
+    vi:'Lọc ba lớp, bơm êm 28dB. Có cửa sổ bên hông để thấy mực nước ngay.',
+    ko:'3중 필터에 저소음 펌프 28dB. 수위창이 있어 물 양이 한눈에 보입니다.'},
+ o_:{en:['White','Grey'], vi:['Trắng','Xám'], ko:['화이트','그레이']}},
+{id:9, c:'travel', p:1279000, o:1839000, r:4.6, rv:1743, badge:'SALE',
+ n:{en:'20-inch Cabin Suitcase', vi:'Vali xách tay 20 inch', ko:'기내용 20인치 캐리어'},
+ d:{en:'TSA lock and silent 360° wheels. The expansion zip adds another 5cm.',
+    vi:'Khoá TSA, bánh xe xoay 360° êm. Khoá kéo mở rộng thêm 5cm.',
+    ko:'TSA 잠금, 무소음 360도 바퀴. 확장 지퍼로 5cm 더 늘어납니다.'},
+ o_:{en:['Silver','Cream','Dark Green'], vi:['Bạc','Kem','Xanh rêu'], ko:['실버','크림','다크그린']}},
+{id:10, c:'living', p:369000, o:519000, r:4.8, rv:2210, badge:'BEST',
+ n:{en:'Reed Diffuser 200ml', vi:'Tinh dầu khuếch tán 200ml', ko:'디퓨저 200ml + 리드 스틱'},
+ d:{en:'A woody scent that lasts about eight weeks. Comes with eight replacement reeds.',
+    vi:'Hương gỗ lưu lại khoảng tám tuần. Kèm tám que tre thay thế.',
+    ko:'8주 지속되는 우디 계열 향. 리필 스틱 8개가 함께 들어 있습니다.'},
+ o_:{en:['French Wood','White Musk','Black Cherry'], vi:['Gỗ Pháp','Xạ trắng','Anh đào đen'], ko:['프렌치 우드','화이트 머스크','블랙 체리']}},
+{id:11, c:'station', p:169000, o:0, r:4.7, rv:1320, badge:'',
+ n:{en:'A5 Hardcover Plain Notebook', vi:'Sổ tay bìa cứng A5 trơn', ko:'A5 하드커버 무지 노트'},
+ d:{en:'200 pages of 100g cream paper. Little bleed-through even with fountain pens, and it opens flat.',
+    vi:'200 trang giấy kem 100g. Ít lem cả khi dùng bút máy, mở phẳng 180 độ.',
+    ko:'100g 미색지 200p. 만년필도 뒷비침이 적고 180도로 펼쳐집니다.'},
+ o_:{en:['Kraft','Charcoal','Olive'], vi:['Giấy kraft','Xám than','Xanh ô liu'], ko:['크래프트','차콜','올리브']}},
+{id:12, c:'storage', p:219000, o:319000, r:4.2, rv:2890, badge:'SALE',
+ n:{en:'Vacuum Storage Bags, Pack of 5', vi:'Bộ 5 túi hút chân không', ko:'다용도 진공 압축팩 5매'},
+ d:{en:'Cuts the bulk of duvets and clothes to a third. A hand pump is included, so no vacuum cleaner needed.',
+    vi:'Giảm thể tích chăn và quần áo còn một phần ba. Có bơm tay kèm theo, không cần máy hút bụi.',
+    ko:'이불과 옷 부피를 3분의 1로 줄입니다. 손 펌프가 있어 청소기가 없어도 됩니다.'},
+ o_:{en:['5 large','5 mixed sizes'], vi:['5 túi lớn','5 túi nhiều cỡ'], ko:['대형 5매','혼합 5매']}},
+{id:13, c:'storage', p:259000, o:359000, r:4.8, rv:4102, badge:'BEST',
+ n:{en:'Non-Slip Velvet Hangers, 30 pcs', vi:'Bộ 30 móc treo nhung chống trượt', ko:'논슬립 벨벳 옷걸이 30개'},
+ d:{en:'The velvet coating holds knitwear in place, and at 5mm thick they free up real space on the rail.',
+    vi:'Lớp nhung giữ đồ len không tuột, dày 5mm nên tủ rộng ra thấy rõ.',
+    ko:'벨벳 코팅이라 니트도 미끄러지지 않고 두께 5mm로 옷장이 넓어집니다.'},
+ o_:{en:['Black, 30 pcs','Ivory, 30 pcs'], vi:['Đen, 30 cái','Trắng ngà, 30 cái'], ko:['블랙 30개','아이보리 30개']}},
+{id:14, c:'kitchen', p:189000, o:259000, r:4.5, rv:1655, badge:'',
+ n:{en:'Pull-Cord Garlic Chopper', vi:'Máy xay tỏi dây kéo', ko:'통돌이 마늘 다지기'},
+ d:{en:'Three seconds a pull. It comes apart for washing and is dishwasher safe.',
+    vi:'Kéo dây ba giây là xong. Tháo rời rửa được, dùng được máy rửa chén.',
+    ko:'손잡이를 당기면 3초면 끝. 분해 세척되고 식기세척기도 사용 가능합니다.'},
+ o_:{en:['500ml','800ml'], vi:['500ml','800ml'], ko:['500ml','800ml']}},
+{id:15, c:'pet', p:779000, o:1039000, r:4.9, rv:520, badge:'NEW',
+ n:{en:'Wooden Cat Scratcher House', vi:'Nhà cào móng gỗ cho mèo', ko:'고양이 원목 스크래처 하우스'},
+ d:{en:'Replaceable cardboard in a solid wood frame. A hammock on top, a hideout underneath.',
+    vi:'Bìa cào thay được, khung gỗ nguyên khối. Trên là võng, dưới là chỗ trốn.',
+    ko:'교체형 골판지에 원목 프레임. 위는 해먹, 아래는 은신처로 씁니다.'},
+ o_:{en:['Natural','White'], vi:['Gỗ tự nhiên','Trắng'], ko:['내추럴','화이트']}},
+{id:16, c:'living', p:149000, o:0, r:4.4, rv:3011, badge:'',
+ n:{en:'Microfibre Cleaning Pads, 20 refills', vi:'20 miếng lau vi sợi thay thế', ko:'극세사 청소포 리필 20매'},
+ d:{en:'Wet on one side, dry on the other. Still picks up dust after a hundred washes.',
+    vi:'Một mặt lau ướt, một mặt lau khô. Sau trăm lần giặt vẫn bám bụi tốt.',
+    ko:'물걸레와 마른걸레 양면. 100회 세탁 후에도 흡착력이 유지됩니다.'},
+ o_:{en:['20 pcs','40 pcs'], vi:['20 miếng','40 miếng'], ko:['20매','40매']}},
+{id:17, c:'bath', p:469000, o:629000, r:4.3, rv:740, badge:'SALE',
+ n:{en:'UV Toothbrush Sanitiser', vi:'Hộp tiệt trùng bàn chải UV', ko:'전동 칫솔 UV 살균 거치대'},
+ d:{en:'A UV-C lamp sterilises in five minutes. Four slots, enough for a family.',
+    vi:'Đèn UV-C tiệt trùng trong năm phút. Bốn khe cắm, đủ cho cả nhà.',
+    ko:'UV-C 램프로 5분 살균. 슬롯이 4개라 가족용으로 충분합니다.'},
+ o_:{en:['White','Mint'], vi:['Trắng','Xanh bạc hà'], ko:['화이트','민트']}},
+{id:18, c:'travel', p:319000, o:429000, r:4.6, rv:1980, badge:'',
+ n:{en:'Packing Cubes, Set of 6', vi:'Bộ 6 túi đựng đồ du lịch', ko:'여행용 파우치 6종 세트'},
+ d:{en:'Separate bags for clothes, underwear, shoes and toiletries. Water-resistant fabric with mesh panels so you can see inside.',
+    vi:'Túi riêng cho quần áo, đồ lót, giày và đồ vệ sinh. Vải chống thấm, có lưới để nhìn thấy bên trong.',
+    ko:'의류·속옷·신발·세면 분리 수납. 방수 원단에 메쉬창으로 내용물이 보입니다.'},
+ o_:{en:['Charcoal','Beige','Navy'], vi:['Xám than','Be','Xanh navy'], ko:['차콜','베이지','네이비']}},
+{id:19, c:'travel', p:259000, o:339000, r:4.2, rv:660, badge:'',
+ n:{en:'Collapsible Silicone Bottle 550ml', vi:'Bình nước silicone gấp gọn 550ml', ko:'접이식 실리콘 물병 550ml'},
+ d:{en:'Folds to 3cm once it is empty. Food-grade silicone that does not hold odours.',
+    vi:'Uống hết gấp lại còn 3cm. Silicone an toàn thực phẩm, không ám mùi.',
+    ko:'다 마시면 3cm로 접힙니다. 식품용 실리콘이라 냄새가 배지 않습니다.'},
+ o_:{en:['Clear','Smoke','Pink'], vi:['Trong suốt','Khói','Hồng'], ko:['클리어','스모크','핑크']}},
+{id:20, c:'station', p:189000, o:279000, r:4.7, rv:2450, badge:'SALE',
+ n:{en:'Masking Tape, Set of 10 Rolls', vi:'Bộ 10 cuộn băng keo giấy', ko:'마스킹 테이프 10롤 세트'},
+ d:{en:'Tears cleanly by hand and peels off without a mark. Ten designs for journals and wrapping.',
+    vi:'Xé tay dễ, bóc ra không để lại vết. Mười mẫu dùng cho sổ tay và gói quà.',
+    ko:'손으로 잘 찢기고 자국 없이 떨어집니다. 다이어리와 포장용 10종 구성.'},
+ o_:{en:['Vintage','Pastel','Monotone'], vi:['Cổ điển','Pastel','Đơn sắc'], ko:['빈티지','파스텔','모노톤']}},
+{id:21, c:'kitchen', p:409000, o:539000, r:4.6, rv:912, badge:'',
+ n:{en:'Large Acacia Cutting Board', vi:'Thớt gỗ keo cỡ lớn', ko:'아카시아 원목 도마 대형'},
+ d:{en:'Oil-finished solid acacia. A groove around the edge keeps juices from running off.',
+    vi:'Gỗ keo nguyên khối phủ dầu. Rãnh quanh mép giữ nước thịt không chảy ra ngoài.',
+    ko:'오일 마감 원목. 가장자리에 홈이 파여 있어 육즙이 흐르지 않습니다.'},
+ o_:{en:['Large','Extra large'], vi:['Lớn','Rất lớn'], ko:['대형','특대형']}},
+{id:22, c:'travel', p:169000, o:229000, r:4.5, rv:1420, badge:'',
+ n:{en:'Sleep Mask & Earplug Set', vi:'Bộ bịt mắt ngủ và nút tai', ko:'수면 안대 + 귀마개 세트'},
+ d:{en:'Contoured so it does not press on your eyes. Includes a pouch and two pairs of earplugs.',
+    vi:'Dáng ôm không đè lên mắt. Kèm túi đựng và hai đôi nút tai.',
+    ko:'입체 컷이라 눈이 눌리지 않습니다. 파우치와 귀마개 두 쌍이 포함됩니다.'},
+ o_:{en:['Charcoal','Ivory'], vi:['Xám than','Trắng ngà'], ko:['차콜','아이보리']}},
+{id:23, c:'bath', p:239000, o:0, r:4.1, rv:405, badge:'NEW',
+ n:{en:'Anti-Scum Silicone Bath Mat', vi:'Thảm silicone chống cặn nhà tắm', ko:'욕실 물때 방지 실리콘 매트'},
+ d:{en:'Non-slip nubs with drainage holes. Cut it with scissors to fit.',
+    vi:'Gai chống trượt kèm lỗ thoát nước. Cắt bằng kéo cho vừa kích thước.',
+    ko:'미끄럼 방지 돌기와 배수 홀. 가위로 잘라 크기를 맞출 수 있습니다.'},
+ o_:{en:['Grey','White'], vi:['Xám','Trắng'], ko:['그레이','화이트']}},
+{id:24, c:'pet', p:299000, o:389000, r:4.4, rv:830, badge:'',
+ n:{en:'Dog Walking Bag', vi:'Túi dắt chó đi dạo', ko:'강아지 산책 가방'},
+ d:{en:'Treats, a water bottle and waste bags in one place. Clips onto the lead without swinging.',
+    vi:'Đựng bánh thưởng, bình nước và túi phân trong một chỗ. Móc vào dây dắt mà không lắc lư.',
+    ko:'간식·물통·배변봉투를 한 번에. 리드줄에 걸어도 흔들리지 않습니다.'},
+ o_:{en:['Khaki','Black','Beige'], vi:['Kaki','Đen','Be'], ko:['카키','블랙','베이지']}},
+];
+
+const pName = p => p.n[lang] || p.n.en;
+const pDesc = p => p.d[lang] || p.d.en;
+const pOpts = p => p.o_[lang] || p.o_.en;
+
+/* ============================================================ 공통 ============================================================ */
+const CART_KEY = 'dapalayu_cart_v3';
+const SHIP_FREE = 500000, SHIP_FEE = 30000;
+let state = {cat:'all', q:'', sort:'popular'};
+let modalItem = null, modalOi = 0, modalQty = 1;
+
+const money  = n => n.toLocaleString(LOCALE[lang]) + ' ₫';
+const pad2   = n => String(n).padStart(2, '0');
+const rateOf = p => p.o ? Math.round((1 - p.p / p.o) * 100) : 0;
+const findP  = id => P.find(x => x.id === id);
+const fmtDate = ts => new Date(ts).toLocaleDateString(LOCALE[lang], {year:'numeric', month:'long', day:'numeric'});
+const fmtDateTime = ts => new Date(ts).toLocaleString(LOCALE[lang], {dateStyle:'long', timeStyle:'short'});
+
+const store = {
+  get(k, f){ try{ const v = JSON.parse(localStorage.getItem(k)); return v == null ? f : v; }catch(e){ return f; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const val = id => (document.getElementById(id) || {}).value ?? '';
+const chk = id => !!(document.getElementById(id) || {}).checked;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+function loadCart(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+    return raw.filter(c => findP(c.id) && c.qty > 0 && pOpts(findP(c.id))[c.oi] !== undefined);
+  }catch(e){ return []; }
+}
+function saveCart(){ try{ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }catch(e){} }
+let cart = loadCart();
+
+const priceHTML = p =>
+  `<span class="p-now${p.o ? ' sale' : ''}">${money(p.p)}</span>` + (p.o ? `<span class="p-was">${money(p.o)}</span>` : '');
+
+/* ============================================================ 언어 전환 ============================================================ */
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = t('docTitle');
+  document.getElementById('wordmark').textContent = t('wordmark');
+  document.getElementById('fmark').textContent = t('wordmark');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('#langsw button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+}
+
+function renderCats(){
+  document.getElementById('cats').innerHTML = CATS.map(c =>
+    `<button class="cat" role="tab" data-cat="${c.id}" aria-selected="${c.id === state.cat}">${esc(c[lang])}</button>`
+  ).join('');
+}
+
+function setLang(next){
+  if(!LANGS.includes(next) || next === lang) return;
+  lang = next;
+  try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
+  applyStatic(); renderCats(); renderGrid(); renderHeroFig(); renderCart(); syncHeader();
+  if($modal.classList.contains('open')) renderModal();
+  if($auth.classList.contains('open')) renderAuth();
+  if(document.body.classList.contains('acct-view')) renderAccount(acctSec);
+}
+
+document.getElementById('langsw').addEventListener('click', e => {
+  const b = e.target.closest('[data-lang]'); if(b) setLang(b.dataset.lang);
+});
+
+/* ============================================================ 그리드 ============================================================ */
+const $grid = document.getElementById('grid');
+
+document.getElementById('cats').addEventListener('click', e => {
+  const b = e.target.closest('.cat'); if(!b) return;
+  state.cat = b.dataset.cat;
+  [...e.currentTarget.children].forEach(x => x.setAttribute('aria-selected', x === b));
+  renderGrid();
+});
+
+function visibleProducts(){
+  const q = state.q.trim().toLowerCase();
+  const list = P.filter(p =>
+    (state.cat === 'all' || p.c === state.cat) &&
+    (!q || pName(p).toLowerCase().includes(q) || pDesc(p).toLowerCase().includes(q) || catName(p.c).toLowerCase().includes(q))
+  );
+  const by = {
+    low:      (a,b) => a.p - b.p,
+    high:     (a,b) => b.p - a.p,
+    discount: (a,b) => rateOf(b) - rateOf(a),
+    review:   (a,b) => b.rv - a.rv,
+    popular:  (a,b) => (b.r * 1000 + b.rv / 100) - (a.r * 1000 + a.rv / 100),
+  };
+  return list.sort(by[state.sort]);
+}
+
+function renderGrid(){
+  const list = visibleProducts();
+  const q = state.q.trim();
+  document.getElementById('secKicker').textContent = q ? t('kSearch') : (state.cat === 'all' ? t('kShopAll') : catName(state.cat));
+  document.getElementById('secTitle').textContent =
+    (q ? t('tSearch', {q}) : (state.cat === 'all' ? t('tAll') : catName(state.cat))) + ` (${list.length})`;
+
+  if(!list.length){
+    $grid.innerHTML = `<div class="empty"><div class="lg">${esc(t('emptyTitle'))}</div>${esc(t('emptyDesc'))}</div>`;
+    return;
+  }
+  $grid.innerHTML = list.map((p, i) => {
+    const flag = p.badge === 'SALE' ? `<span class="flag sale">${esc(t('flagOff', {n: rateOf(p)}))}</span>`
+               : p.badge === 'NEW'  ? `<span class="flag">${esc(t('flagNew'))}</span>`
+               : p.badge === 'BEST' ? `<span class="flag">${esc(t('flagBest'))}</span>` : '';
+    return `<button class="card" data-id="${p.id}">
+      <div class="tile">${flag}<span class="idx">${pad2(i + 1)}</span>${svgOf(p.id)}</div>
+      <div class="card-meta">
+        <div class="card-cat">${esc(catName(p.c))}</div>
+        <div class="card-name">${esc(pName(p))}</div>
+        <div class="prices">${priceHTML(p)}</div>
+        <div class="rate">${esc(t('rate', {r: p.r, n: p.rv.toLocaleString(LOCALE[lang])}))}</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+function renderHeroFig(){
+  const p = findP(1);
+  document.getElementById('heroFig').innerHTML = svgOf(1);
+  document.getElementById('heroCapName').textContent = pName(p);
+  document.getElementById('heroCapPrice').textContent = money(p.p);
+}
+
+$grid.addEventListener('click', e => {
+  const c = e.target.closest('.card'); if(c) openModal(+c.dataset.id);
+});
+document.getElementById('q').addEventListener('input', e => { state.q = e.target.value; renderGrid(); });
+document.getElementById('sort').addEventListener('change', e => { state.sort = e.target.value; renderGrid(); });
+document.getElementById('btnScroll').addEventListener('click', () => {
+  document.querySelector('.sechead').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+/* ============================================================ 상세 모달 ============================================================ */
+const $modal = document.getElementById('modal');
+const $scrim = document.getElementById('scrim');
+
+function openModal(id){
+  modalItem = findP(id); modalOi = 0; modalQty = 1;
+  renderModal();
+  $modal.classList.add('open'); $scrim.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function renderModal(){
+  const p = modalItem;
+  $modal.innerHTML = `
+    <button class="closebtn" data-act="close" aria-label="close">✕</button>
+    <div class="modal-inner">
+      <div class="modal-fig">${svgOf(p.id)}</div>
+      <div class="modal-info">
+        <div class="modal-scroll">
+          <span class="eyebrow">${esc(catName(p.c))} — No. ${pad2(p.id)}</span>
+          <h3>${esc(pName(p))}</h3>
+          <p class="modal-desc">${esc(pDesc(p))}</p>
+          <div class="modal-price">${priceHTML(p)}</div>
+          <div class="modal-rate">${esc(t('rate', {r: p.r, n: p.rv.toLocaleString(LOCALE[lang])}))}</div>
+          <div class="field">
+            <label for="mOpt">${esc(t('mOption'))}</label>
+            <select id="mOpt">${pOpts(p).map((o, i) => `<option value="${i}" ${i === modalOi ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>
+          </div>
+          <div class="field">
+            <label>${esc(t('mQuantity'))}</label>
+            <div class="qty"><button data-act="minus">−</button><span>${modalQty}</span><button data-act="plus">+</button></div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <div class="modal-total">
+            <span class="lbl">${esc(t('mTotal'))}</span>
+            <span class="val">${money(p.p * modalQty)}</span>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-line" data-act="close">${esc(t('mClose'))}</button>
+            <button class="btn-solid" data-act="add">${esc(t('mAdd'))}</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  $modal.querySelector('#mOpt').addEventListener('change', e => { modalOi = +e.target.value; });
+}
+$modal.addEventListener('click', e => {
+  const hit = e.target.closest('[data-act]'); if(!hit) return;
+  const act = hit.dataset.act;
+  if(act === 'close') closeOverlays();
+  if(act === 'plus' || act === 'minus'){
+    // 전체 재렌더하면 스크롤 위치가 위로 튀므로 바뀌는 두 노드만 갱신한다
+    modalQty = Math.max(1, Math.min(99, modalQty + (act === 'plus' ? 1 : -1)));
+    $modal.querySelector('.qty span').textContent = modalQty;
+    $modal.querySelector('.modal-total .val').textContent = money(modalItem.p * modalQty);
+  }
+  if(act === 'add'){ addToCart(modalItem.id, modalOi, modalQty); closeOverlays(); }
+});
+
+/* ============================================================ 장바구니 ============================================================ */
+const $drawer = document.getElementById('drawer');
+
+function addToCart(id, oi, qty){
+  const hit = cart.find(c => c.id === id && c.oi === oi);
+  if(hit) hit.qty = Math.min(99, hit.qty + qty);
+  else cart.push({id, oi, qty});
+  saveCart(); renderCart();
+  toast(t('tAdded', {n: qty}));
+}
+function changeQty(i, diff){
+  cart[i].qty += diff;
+  if(cart[i].qty < 1) cart.splice(i, 1);
+  else cart[i].qty = Math.min(99, cart[i].qty);
+  saveCart(); renderCart();
+}
+function cartTotals(){
+  const sub  = cart.reduce((s, c) => s + findP(c.id).p * c.qty, 0);
+  const ship = (sub === 0 || sub >= SHIP_FREE) ? 0 : SHIP_FEE;
+  return {sub, ship, total: sub + ship, count: cart.reduce((s, c) => s + c.qty, 0)};
+}
+
+function renderCart(){
+  const {sub, ship, total, count} = cartTotals();
+  document.getElementById('cartN').textContent = count ? `(${count})` : '';
+  document.getElementById('drawerN').textContent = count || '';
+
+  const $body = document.getElementById('cartBody'), $foot = document.getElementById('cartFoot');
+
+  if(!cart.length){
+    $body.innerHTML = `<div class="cart-empty"><div class="lg">${esc(t('cEmptyTitle'))}</div>${esc(t('cEmptyDesc'))}</div>`;
+    $foot.innerHTML = `<button class="btn-solid" data-act="closecart">${esc(t('cContinue'))}</button>`;
+    return;
+  }
+
+  $body.innerHTML = cart.map((c, i) => {
+    const p = findP(c.id);
+    return `<div class="citem">
+      <div class="citem-fig">${svgOf(p.id)}</div>
+      <div class="citem-main">
+        <div class="citem-name">${esc(pName(p))}</div>
+        <div class="citem-opt">${esc(pOpts(p)[c.oi])}</div>
+        <div class="citem-bottom">
+          <div class="qty"><button data-act="m" data-i="${i}">−</button><span>${c.qty}</span><button data-act="p" data-i="${i}">+</button></div>
+          <div>
+            <div class="citem-price">${money(p.p * c.qty)}</div>
+            <button class="del" data-act="d" data-i="${i}">${esc(t('cDelete'))}</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const pct = Math.min(100, Math.round(sub / SHIP_FREE * 100));
+  $foot.innerHTML = `
+    <div class="shipbar">
+      <div class="t">${esc(ship ? t('cRemain', {amt: money(SHIP_FREE - sub)}) : t('cMet'))}</div>
+      <div class="track"><i style="width:${pct}%"></i></div>
+    </div>
+    <div class="sumrow"><span>${esc(t('cSubtotal'))}</span><span>${money(sub)}</span></div>
+    <div class="sumrow"><span>${esc(t('cShipping'))}</span><span>${ship ? money(ship) : esc(t('cFree'))}</span></div>
+    <div class="sumrow total"><span>${esc(t('cTotal'))}</span><span>${money(total)}</span></div>
+    <button class="btn-solid" data-act="order">${esc(t('cOrder', {amt: money(total)}))}</button>`;
+}
+
+$drawer.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if(!el) return;
+  const act = el.dataset.act, i = +el.dataset.i;
+  if(act === 'p') changeQty(i, 1);
+  if(act === 'm') changeQty(i, -1);
+  if(act === 'd'){ cart.splice(i, 1); saveCart(); renderCart(); }
+  if(act === 'closecart') closeOverlays();
+  if(act === 'order') checkout();
+});
+document.getElementById('btnCart').addEventListener('click', () => {
+  $drawer.classList.add('open'); $scrim.classList.add('open');
+  document.body.style.overflow = 'hidden';
+});
+document.getElementById('btnCloseCart').addEventListener('click', closeOverlays);
+
+function closeOverlays(){
+  $drawer.classList.remove('open');
+  $modal.classList.remove('open');
+  $auth.classList.remove('open');
+  $scrim.classList.remove('open');
+  document.body.style.overflow = '';
+}
+$scrim.addEventListener('click', closeOverlays);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeOverlays(); });
+
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   계정 / 인증
+   서버가 없는 정적 페이지이므로 인증은 브라우저 저장소 기반 목업입니다.
+   비밀번호 검증·세션 발급은 실제 서비스에서 반드시 서버로 옮겨야 합니다.
+   ============================================================ */
+const K_USERS='dapalayu_users_v1', K_SESSION='dapalayu_session_v1',
+      K_ADDR='dapalayu_addr_v2',   K_ORDERS='dapalayu_orders_v2';
+
+// 데모 전용 해시. 서버 도입 시 bcrypt / argon2 로 대체해야 합니다.
+function demoHash(s){
+  let h = 0x811c9dc5;
+  for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return ('0000000' + (h >>> 0).toString(16)).slice(-8);
+}
+const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+// 베트남 휴대폰: 0 또는 +84 뒤에 3/5/7/8/9 + 8자리
+const isPhone = s => /^(?:0|\+?84)(3|5|7|8|9)\d{8}$/.test(s.replace(/[\s.()-]/g, ''));
+const isPw    = s => s.length >= 8 && /[A-Za-z]/.test(s) && /\d/.test(s);
+
+const users = () => store.get(K_USERS, []);
+const usersSet = u => store.set(K_USERS, u);
+
+function getSession(){
+  try{
+    return JSON.parse(localStorage.getItem(K_SESSION)) || JSON.parse(sessionStorage.getItem(K_SESSION)) || null;
+  }catch(e){ return null; }
+}
+function setSession(id, persist){
+  try{
+    localStorage.removeItem(K_SESSION); sessionStorage.removeItem(K_SESSION);
+    if(id) (persist ? localStorage : sessionStorage).setItem(K_SESSION, JSON.stringify({id}));
+  }catch(e){}
+}
+function currentUser(){
+  const s = getSession();
+  return s ? users().find(u => u.id === s.id) || null : null;
+}
+function patchUser(patch){
+  const list = users(), i = list.findIndex(u => u.id === patch.id);
+  if(i >= 0){ list[i] = {...list[i], ...patch}; usersSet(list); }
+}
+
+const addrAll = () => store.get(K_ADDR, {});
+const addrOf  = id => addrAll()[id] || [];
+function addrSet(id, list){ const a = addrAll(); a[id] = list; store.set(K_ADDR, a); }
+const ordersOf = id => (store.get(K_ORDERS, {})[id] || []);
+const addrLine = a => [a.street, a.ward, a.district, a.province].filter(Boolean).join(', ');
+
+function setErr(eid, msg){
+  const e = document.getElementById(eid); if(!e) return;
+  e.textContent = msg || '';
+  const inp = document.getElementById('f_' + eid.slice(2));
+  if(inp) inp.classList.toggle('bad', !!msg);
+}
+
+/* ---------------------------- 인증 모달 ---------------------------- */
+const $auth = document.getElementById('auth');
+let authTab = 'login';
+
+function openAuth(tab){
+  authTab = tab || 'login';
+  renderAuth();
+  $auth.classList.add('open'); $scrim.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { const f = $auth.querySelector('input'); if(f) f.focus(); }, 60);
+}
+
+function renderAuth(){
+  const tabs = `
+    <div class="auth-tabs">
+      <button class="auth-tab" data-act="tab" data-tab="login"  aria-selected="${authTab === 'login'}">${esc(t('aLogin'))}</button>
+      <button class="auth-tab" data-act="tab" data-tab="signup" aria-selected="${authTab === 'signup'}">${esc(t('aSignup'))}</button>
+    </div>`;
+  const note = `<div class="auth-note">${esc(t('aDemoNote'))}</div>`;
+
+  $auth.innerHTML = authTab === 'login' ? `
+    <button class="closebtn" data-act="close" aria-label="close">✕</button>
+    ${tabs}
+    <div class="frow">
+      <label for="f_lemail">${esc(t('aEmail'))}</label>
+      <input class="inp" id="f_lemail" type="email" autocomplete="username" placeholder="name@example.com">
+      <span class="err" id="e_lemail"></span>
+    </div>
+    <div class="frow">
+      <label for="f_lpw">${esc(t('aPassword'))}</label>
+      <input class="inp" id="f_lpw" type="password" autocomplete="current-password">
+      <span class="err" id="e_lpw"></span>
+    </div>
+    <label class="check"><input type="checkbox" id="f_keep" checked><span>${esc(t('aKeep'))}</span></label>
+    <button class="btn-solid" data-act="login">${esc(t('aLogin'))}</button>
+    <div class="auth-foot">${esc(t('aNoAccount'))} <button data-act="tab" data-tab="signup">${esc(t('aSignup'))}</button></div>
+    ${note}` : `
+    <button class="closebtn" data-act="close" aria-label="close">✕</button>
+    ${tabs}
+    <div class="frow">
+      <label for="f_name">${esc(t('aName'))}</label>
+      <input class="inp" id="f_name" autocomplete="name">
+      <span class="err" id="e_name"></span>
+    </div>
+    <div class="frow">
+      <label for="f_email">${esc(t('aEmail'))}</label>
+      <input class="inp" id="f_email" type="email" autocomplete="username" placeholder="name@example.com">
+      <span class="err" id="e_email"></span>
+    </div>
+    <div class="frow">
+      <label for="f_phone">${esc(t('aPhone'))}</label>
+      <input class="inp" id="f_phone" inputmode="tel" placeholder="090 123 4567">
+      <span class="err" id="e_phone"></span>
+    </div>
+    <div class="frow">
+      <label for="f_pw">${esc(t('aPassword'))}</label>
+      <input class="inp" id="f_pw" type="password" autocomplete="new-password">
+      <span class="hint">${esc(t('aPwHint'))}</span>
+      <span class="err" id="e_pw"></span>
+    </div>
+    <div class="frow">
+      <label for="f_pw2">${esc(t('aPwConfirm'))}</label>
+      <input class="inp" id="f_pw2" type="password" autocomplete="new-password">
+      <span class="err" id="e_pw2"></span>
+    </div>
+    <div style="margin:24px 0 18px">
+      <label class="check"><input type="checkbox" id="f_t1"><span>${t('aTerms1')}</span></label>
+      <label class="check"><input type="checkbox" id="f_t2"><span>${t('aTerms2')}</span></label>
+      <label class="check"><input type="checkbox" id="f_t3"><span>${t('aTerms3')}</span></label>
+      <span class="err" id="e_terms"></span>
+    </div>
+    <button class="btn-solid" data-act="signup">${esc(t('aSignupBtn'))}</button>
+    <div class="auth-foot">${esc(t('aHaveAccount'))} <button data-act="tab" data-tab="login">${esc(t('aLogin'))}</button></div>
+    ${note}`;
+}
+
+function doLogin(){
+  const email = val('f_lemail').trim().toLowerCase(), pw = val('f_lpw');
+  setErr('e_lemail', ''); setErr('e_lpw', '');
+  let ok = true;
+  if(!isEmail(email)){ setErr('e_lemail', t('eEmailFormat')); ok = false; }
+  if(!pw){ setErr('e_lpw', t('ePwRequired')); ok = false; }
+  if(!ok) return;
+
+  const u = users().find(x => x.email === email);
+  if(!u || u.pw !== demoHash(pw)){ setErr('e_lpw', t('eLoginFail')); return; }
+
+  setSession(u.id, chk('f_keep'));
+  closeOverlays(); syncHeader();
+  toast(t('tWelcome', {name: u.name}));
+  if(location.hash.startsWith('#/account')) route();
+}
+
+function doSignup(){
+  const name = val('f_name').trim(), email = val('f_email').trim().toLowerCase();
+  const phone = val('f_phone').trim(), pw = val('f_pw'), pw2 = val('f_pw2');
+  ['e_name','e_email','e_phone','e_pw','e_pw2'].forEach(k => setErr(k, ''));
+  document.getElementById('e_terms').textContent = '';
+
+  let ok = true;
+  if(name.length < 2){ setErr('e_name', t('eNameMin')); ok = false; }
+  if(!isEmail(email)){ setErr('e_email', t('eEmailFormat')); ok = false; }
+  else if(users().some(u => u.email === email)){ setErr('e_email', t('eEmailDup')); ok = false; }
+  if(!isPhone(phone)){ setErr('e_phone', t('ePhFormat')); ok = false; }
+  if(!isPw(pw)){ setErr('e_pw', t('ePwWeak')); ok = false; }
+  if(pw !== pw2){ setErr('e_pw2', t('ePwMismatch')); ok = false; }
+  if(!chk('f_t1') || !chk('f_t2')){ document.getElementById('e_terms').textContent = t('eTerms'); ok = false; }
+  if(!ok) return;
+
+  const u = {id: uid(), name, email, phone, pw: demoHash(pw), at: Date.now(), mkt: {email: chk('f_t3'), sms: chk('f_t3')}};
+  usersSet([...users(), u]);
+  setSession(u.id, true);
+  closeOverlays(); syncHeader();
+  toast(t('tSignedUp', {name: u.name}));
+  go('#/account/profile');
+}
+
+$auth.addEventListener('click', e => {
+  const hit = e.target.closest('[data-act]'); if(!hit) return;
+  const act = hit.dataset.act;
+  if(act === 'close') closeOverlays();
+  if(act === 'tab'){ authTab = hit.dataset.tab; renderAuth(); }
+  if(act === 'login') doLogin();
+  if(act === 'signup') doSignup();
+});
+$auth.addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); authTab === 'login' ? doLogin() : doSignup(); }
+});
+
+/* ---------------------------- 마이페이지 ---------------------------- */
+const $acct = document.getElementById('acctRoot');
+let acctSec = 'profile';
+let addrEdit = null;
+
+const navItem = (id, key, cur) =>
+  `<button data-act="sec" data-sec="${id}" aria-current="${cur === id}">${esc(t(key))}</button>`;
+
+function renderAccount(sec){
+  acctSec = sec;
+  if(sec !== 'addresses') addrEdit = null;
+  const u = currentUser();
+
+  if(!u){
+    $acct.innerHTML = `<div class="gate">
+      <div class="lg">${esc(t('gateTitle'))}</div>
+      <p>${esc(t('gateDesc'))}</p>
+      <button class="btn-solid" style="padding:15px 36px" data-act="openlogin">${esc(t('gateBtn'))}</button>
+    </div>`;
+    return;
+  }
+
+  const body = {profile: panelProfile, addresses: panelAddr, orders: panelOrders, security: panelSecurity}[sec] || panelProfile;
+  $acct.innerHTML = `
+    <div class="acct-head">
+      <span class="eyebrow">${esc(t('accKicker'))}</span>
+      <h1>${esc(t('accHi', {name: u.name}))}</h1>
+      <div class="who">${esc(t('accJoined', {email: u.email, date: fmtDate(u.at)}))}</div>
+    </div>
+    <div class="acct">
+      <nav class="acct-nav">
+        ${navItem('profile','navProfile',sec)}
+        ${navItem('addresses','navAddresses',sec)}
+        ${navItem('orders','navOrders',sec)}
+        ${navItem('security','navSecurity',sec)}
+        <div class="sep"></div>
+        <button class="danger" data-act="logout">${esc(t('navLogout'))}</button>
+      </nav>
+      <div>${body(u)}</div>
+    </div>`;
+}
+
+function panelProfile(u){
+  return `<div class="panel">
+    <span class="eyebrow">Profile</span>
+    <h2>${esc(t('pfTitle'))}</h2>
+    <p class="sub">${esc(t('pfSub'))}</p>
+    <div class="frow">
+      <label for="f_pname">${esc(t('aName'))}</label>
+      <input class="inp" id="f_pname" value="${esc(u.name)}">
+      <span class="err" id="e_pname"></span>
+    </div>
+    <div class="frow">
+      <label for="f_pemail">${esc(t('aEmail'))}</label>
+      <input class="inp" id="f_pemail" value="${esc(u.email)}" disabled>
+      <span class="hint">${esc(t('pfEmailHint'))}</span>
+    </div>
+    <div class="frow">
+      <label for="f_pphone">${esc(t('aPhone'))}</label>
+      <input class="inp" id="f_pphone" value="${esc(u.phone)}">
+      <span class="err" id="e_pphone"></span>
+    </div>
+    <div class="frow" style="margin-top:30px">
+      <label>${esc(t('pfMarketing'))}</label>
+      <label class="check"><input type="checkbox" id="f_me" ${u.mkt.email ? 'checked' : ''}><span>${esc(t('pfMktEmail'))}</span></label>
+      <label class="check"><input type="checkbox" id="f_ms" ${u.mkt.sms ? 'checked' : ''}><span>${esc(t('pfMktSms'))}</span></label>
+    </div>
+    <div class="panel-actions"><button class="btn-solid" data-act="saveprofile">${esc(t('pfSave'))}</button></div>
+  </div>`;
+}
+
+function panelAddr(u){
+  const list = addrOf(u.id);
+  const rows = list.length ? list.map(a => `
+    <div class="addr">
+      <div>
+        <div class="addr-name">${esc(a.label)}${a.def ? `<span class="chip">${esc(t('adDefault'))}</span>` : ''}</div>
+        <div class="addr-text">${esc(a.recipient)} · ${esc(a.phone)}<br>${esc(addrLine(a))}</div>
+      </div>
+      <div class="addr-acts">
+        ${a.def ? '' : `<button data-act="addr-def" data-id="${a.id}">${esc(t('adSetDefault'))}</button>`}
+        <button data-act="addr-edit" data-id="${a.id}">${esc(t('adEdit'))}</button>
+        <button class="rm" data-act="addr-del" data-id="${a.id}">${esc(t('adDelete'))}</button>
+      </div>
+    </div>`).join('')
+    : `<p class="sub" style="border-top:1px solid var(--line);padding-top:24px">${esc(t('adNone'))}</p>`;
+
+  const e = addrEdit && addrEdit !== 'new' ? list.find(a => a.id === addrEdit) : null;
+  const v = k => esc(e ? e[k] : '');
+  const form = addrEdit ? `
+    <div class="addform">
+      <span class="eyebrow">${esc(t(e ? 'adKickerEdit' : 'adKickerNew'))}</span>
+      <h2 style="margin:8px 0 24px">${esc(t(e ? 'adEditTitle' : 'adNewTitle'))}</h2>
+      <div class="frow">
+        <label for="f_alabel">${esc(t('adLabel'))}</label>
+        <input class="inp" id="f_alabel" value="${v('label')}" placeholder="${esc(t('adLabelPh'))}">
+      </div>
+      <div class="grid2">
+        <div class="frow">
+          <label for="f_arecip">${esc(t('adRecipient'))}</label>
+          <input class="inp" id="f_arecip" value="${v('recipient')}">
+          <span class="err" id="e_arecip"></span>
+        </div>
+        <div class="frow">
+          <label for="f_aphone">${esc(t('adPhone'))}</label>
+          <input class="inp" id="f_aphone" value="${v('phone')}" placeholder="090 123 4567">
+          <span class="err" id="e_aphone"></span>
+        </div>
+      </div>
+      <div class="frow">
+        <label for="f_astreet">${esc(t('adStreet'))}</label>
+        <input class="inp" id="f_astreet" value="${v('street')}" placeholder="${esc(t('adStreetPh'))}">
+        <span class="err" id="e_astreet"></span>
+      </div>
+      <div class="grid2">
+        <div class="frow">
+          <label for="f_award">${esc(t('adWard'))}</label>
+          <input class="inp" id="f_award" value="${v('ward')}" placeholder="${esc(t('adWardPh'))}">
+          <span class="err" id="e_award"></span>
+        </div>
+        <div class="frow">
+          <label for="f_adistrict">${esc(t('adDistrict'))}</label>
+          <input class="inp" id="f_adistrict" value="${v('district')}" placeholder="${esc(t('adDistrictPh'))}">
+          <span class="err" id="e_adistrict"></span>
+        </div>
+      </div>
+      <div class="frow">
+        <label for="f_aprovince">${esc(t('adProvince'))}</label>
+        <input class="inp" id="f_aprovince" value="${v('province')}" placeholder="${esc(t('adProvincePh'))}">
+        <span class="err" id="e_aprovince"></span>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="f_adef" ${(e && e.def) || !list.length ? 'checked' : ''} ${!list.length ? 'disabled' : ''}>
+        <span>${esc(t('adAsDefault'))}${!list.length ? esc(t('adFirstAuto')) : ''}</span>
+      </label>
+      <div class="panel-actions">
+        <button class="btn-solid" data-act="addr-save" data-id="${e ? e.id : ''}">${esc(t('adSave'))}</button>
+        <button class="btn-line" data-act="addr-cancel">${esc(t('adCancel'))}</button>
+      </div>
+    </div>` : `
+    <div class="panel-actions"><button class="btn-line" data-act="addr-new">${esc(t('adNew'))}</button></div>`;
+
+  return `<div class="panel">
+    <span class="eyebrow">Addresses</span>
+    <h2>${esc(t('adTitle'))}</h2>
+    <p class="sub">${esc(t('adSub'))}</p>
+    ${rows}${form}
+  </div>`;
+}
+
+function panelOrders(u){
+  const list = ordersOf(u.id);
+  if(!list.length){
+    return `<div class="panel">
+      <span class="eyebrow">Orders</span>
+      <h2>${esc(t('odTitle'))}</h2>
+      <p class="sub">${esc(t('odNoneSub'))}</p>
+      <div class="panel-actions"><button class="btn-solid" data-act="goshop">${esc(t('odGoShop'))}</button></div>
+    </div>`;
+  }
+  return `<div class="panel" style="max-width:640px">
+    <span class="eyebrow">Orders</span>
+    <h2>${esc(t('odTitleN', {n: list.length}))}</h2>
+    <p class="sub">${esc(t('odSub'))}</p>
+    ${list.map(o => `
+      <div class="order">
+        <div class="order-top">
+          <div>
+            <div class="order-no">${esc(o.no)}</div>
+            <div class="order-date">${esc(fmtDateTime(o.at))}</div>
+          </div>
+          <span class="order-state">${esc(t('odPaid'))}</span>
+        </div>
+        ${o.items.map(it => {
+          const p = findP(it.id);
+          return `<div class="oitem">
+            <div class="oitem-fig">${p ? svgOf(p.id) : ''}</div>
+            <div>
+              <div class="oitem-n">${esc(p ? pName(p) : it.id)}</div>
+              <div class="oitem-o">${esc(p ? pOpts(p)[it.oi] : '')} · ${esc(t('odQty', {n: it.qty}))}</div>
+            </div>
+            <div class="oitem-p">${money(it.price * it.qty)}</div>
+          </div>`;
+        }).join('')}
+        <div class="order-sum">
+          <span>${esc(t('odLine', {sub: money(o.sub), ship: o.ship ? money(o.ship) : t('cFree')}))}</span>
+          <b>${money(o.total)}</b>
+        </div>
+        <div class="order-ship">
+          ${esc(t('odShipTo'))} · ${esc(o.to.recipient)} ${esc(o.to.phone)}<br>${esc(addrLine(o.to))}
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function panelSecurity(u){
+  return `<div class="panel">
+    <span class="eyebrow">Security</span>
+    <h2>${esc(t('scTitle'))}</h2>
+    <p class="sub">${esc(t('scSub'))}</p>
+    <div class="frow">
+      <label for="f_cur">${esc(t('scCurrent'))}</label>
+      <input class="inp" id="f_cur" type="password" autocomplete="current-password">
+      <span class="err" id="e_cur"></span>
+    </div>
+    <div class="frow">
+      <label for="f_new">${esc(t('scNew'))}</label>
+      <input class="inp" id="f_new" type="password" autocomplete="new-password">
+      <span class="hint">${esc(t('aPwHint'))}</span>
+      <span class="err" id="e_new"></span>
+    </div>
+    <div class="frow">
+      <label for="f_new2">${esc(t('scConfirm'))}</label>
+      <input class="inp" id="f_new2" type="password" autocomplete="new-password">
+      <span class="err" id="e_new2"></span>
+    </div>
+    <div class="panel-actions"><button class="btn-solid" data-act="savepw">${esc(t('scChange'))}</button></div>
+
+    <div class="danger-box">
+      <h3>${esc(t('scWdTitle'))}</h3>
+      <p>${esc(t('scWdDesc', {a: addrOf(u.id).length, o: ordersOf(u.id).length}))}</p>
+      <button class="btn-danger" data-act="withdraw">${esc(t('scWdBtn'))}</button>
+    </div>
+  </div>`;
+}
+
+/* ---------------------------- 계정 액션 ---------------------------- */
+function saveProfile(u){
+  const name = val('f_pname').trim(), phone = val('f_pphone').trim();
+  setErr('e_pname', ''); setErr('e_pphone', '');
+  let ok = true;
+  if(name.length < 2){ setErr('e_pname', t('eNameMin')); ok = false; }
+  if(!isPhone(phone)){ setErr('e_pphone', t('ePhFormat')); ok = false; }
+  if(!ok) return;
+  patchUser({id: u.id, name, phone, mkt: {email: chk('f_me'), sms: chk('f_ms')}});
+  renderAccount('profile'); syncHeader();
+  toast(t('tProfileSaved'));
+}
+
+function saveAddr(u, id){
+  const f = {
+    label:     val('f_alabel').trim() || t('adLabelPh').split('/')[0].trim(),
+    recipient: val('f_arecip').trim(),
+    phone:     val('f_aphone').trim(),
+    street:    val('f_astreet').trim(),
+    ward:      val('f_award').trim(),
+    district:  val('f_adistrict').trim(),
+    province:  val('f_aprovince').trim(),
+  };
+  ['e_arecip','e_aphone','e_astreet','e_award','e_adistrict','e_aprovince'].forEach(k => setErr(k, ''));
+  let ok = true;
+  if(f.recipient.length < 2){ setErr('e_arecip', t('eNameMin')); ok = false; }
+  if(!isPhone(f.phone)){ setErr('e_aphone', t('ePhFormat')); ok = false; }
+  if(f.street.length < 4){ setErr('e_astreet', t('eStreet')); ok = false; }
+  if(!f.ward){ setErr('e_award', t('eWard')); ok = false; }
+  if(!f.district){ setErr('e_adistrict', t('eDistrict')); ok = false; }
+  if(!f.province){ setErr('e_aprovince', t('eProvince')); ok = false; }
+  if(!ok) return;
+
+  let list = addrOf(u.id);
+  const wantDef = chk('f_adef') || !list.length;
+
+  if(id){ list = list.map(a => a.id === id ? {...a, ...f} : a); }
+  else { const nid = uid(); list = [...list, {id: nid, ...f, def: false}]; id = nid; }
+  if(wantDef) list = list.map(a => ({...a, def: a.id === id}));
+  if(!list.some(a => a.def)) list[0].def = true;
+
+  addrSet(u.id, list);
+  addrEdit = null;
+  renderAccount('addresses');
+  toast(t('tAddrSaved'));
+}
+
+function delAddr(u, id){
+  const target = addrOf(u.id).find(a => a.id === id);
+  if(!target || !confirm(t('adConfirmDel', {label: target.label}))) return;
+  const list = addrOf(u.id).filter(a => a.id !== id);
+  if(list.length && !list.some(a => a.def)) list[0].def = true;
+  addrSet(u.id, list);
+  if(addrEdit === id) addrEdit = null;
+  renderAccount('addresses');
+  toast(t('tAddrDeleted'));
+}
+
+function savePw(u){
+  const cur = val('f_cur'), nw = val('f_new'), nw2 = val('f_new2');
+  ['e_cur','e_new','e_new2'].forEach(k => setErr(k, ''));
+  let ok = true;
+  if(demoHash(cur) !== u.pw){ setErr('e_cur', t('eCurPw')); ok = false; }
+  if(!isPw(nw)){ setErr('e_new', t('ePwWeak')); ok = false; }
+  else if(nw === cur){ setErr('e_new', t('eSamePw')); ok = false; }
+  if(nw !== nw2){ setErr('e_new2', t('eNewMismatch')); ok = false; }
+  if(!ok) return;
+  patchUser({id: u.id, pw: demoHash(nw)});
+  renderAccount('security');
+  toast(t('tPwChanged'));
+}
+
+function withdraw(u){
+  if(!confirm(t('scWdConfirm'))) return;
+  usersSet(users().filter(x => x.id !== u.id));
+  const a = addrAll(); delete a[u.id]; store.set(K_ADDR, a);
+  const o = store.get(K_ORDERS, {}); delete o[u.id]; store.set(K_ORDERS, o);
+  setSession(null);
+  go('#/'); syncHeader();
+  toast(t('tWithdrawn'));
+}
+
+$acct.addEventListener('click', e => {
+  const hit = e.target.closest('[data-act]'); if(!hit) return;
+  const act = hit.dataset.act, id = hit.dataset.id;
+  const u = currentUser();
+
+  if(act === 'openlogin') return openAuth('login');
+  if(act === 'goshop')    return go('#/');
+  if(!u) return;
+
+  if(act === 'sec')          go('#/account/' + hit.dataset.sec);
+  if(act === 'logout'){ setSession(null); go('#/'); syncHeader(); toast(t('tLoggedOut')); }
+  if(act === 'saveprofile')  saveProfile(u);
+  if(act === 'addr-new'){    addrEdit = 'new'; renderAccount('addresses'); }
+  if(act === 'addr-edit'){   addrEdit = id;    renderAccount('addresses'); }
+  if(act === 'addr-cancel'){ addrEdit = null;  renderAccount('addresses'); }
+  if(act === 'addr-save')    saveAddr(u, id || null);
+  if(act === 'addr-del')     delAddr(u, id);
+  if(act === 'addr-def'){
+    addrSet(u.id, addrOf(u.id).map(a => ({...a, def: a.id === id})));
+    renderAccount('addresses'); toast(t('tDefaultChanged'));
+  }
+  if(act === 'savepw')   savePw(u);
+  if(act === 'withdraw') withdraw(u);
+});
+
+/* ---------------------------- 주문 ---------------------------- */
+function orderNo(){
+  const d = new Date();
+  return `DP-${String(d.getFullYear()).slice(2)}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}-${Math.floor(Math.random() * 9000) + 1000}`;
+}
+
+function checkout(){
+  if(!cart.length) return;
+  const u = currentUser();
+  if(!u){ closeOverlays(); openAuth('login'); toast(t('tLoginRequired')); return; }
+
+  const list = addrOf(u.id);
+  if(!list.length){ closeOverlays(); go('#/account/addresses'); toast(t('tAddrRequired')); return; }
+
+  const a = list.find(x => x.def) || list[0];
+  const {sub, ship, total} = cartTotals();
+  const order = {
+    no: orderNo(), at: Date.now(), status: 'paid',
+    items: cart.map(c => ({id: c.id, oi: c.oi, qty: c.qty, price: findP(c.id).p})),
+    sub, ship, total,
+    to: {recipient: a.recipient, phone: a.phone, street: a.street, ward: a.ward, district: a.district, province: a.province},
+  };
+  const all = store.get(K_ORDERS, {});
+  all[u.id] = [order, ...(all[u.id] || [])];
+  store.set(K_ORDERS, all);
+
+  cart = []; saveCart(); renderCart(); closeOverlays();
+  go('#/account/orders');
+  toast(t('tOrdered', {amt: money(total)}));
+}
+
+/* ---------------------------- 라우팅 ---------------------------- */
+function syncHeader(){
+  document.getElementById('btnAccount').textContent = currentUser() ? t('account') : t('login');
+}
+function go(hash){ location.hash === hash ? route() : location.hash = hash; }
+function route(){
+  const h = location.hash || '#/';
+  const isAcct = h.startsWith('#/account');
+  document.body.classList.toggle('acct-view', isAcct);
+  document.getElementById('viewShop').hidden = isAcct;
+  document.getElementById('viewAccount').hidden = !isAcct;
+  if(isAcct) renderAccount(h.split('/')[2] || 'profile');
+  window.scrollTo({top: 0});
+  syncHeader();
+}
+window.addEventListener('hashchange', route);
+
+document.getElementById('btnHome').addEventListener('click', () => go('#/'));
+document.getElementById('btnAccount').addEventListener('click', () => {
+  currentUser() ? go('#/account/profile') : openAuth('login');
+});
+
+/* ---------------------------- 초기화 ---------------------------- */
+applyStatic();
+renderCats();
+renderGrid();
+renderHeroFig();
+renderCart();
+route();
+</script>
+</body>
+</html>
