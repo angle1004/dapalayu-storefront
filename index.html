@@ -1309,6 +1309,7 @@ function toast(msg){
 const API_BASE = 'https://dapalayu-api.onrender.com';
 const K_API_TOKEN = 'dapalayu_api_token_v1';
 let apiUser = null, apiOrders = [];
+function normalizeApiUser(u){ return {...u, id:u.id || u._id, at:new Date(u.createdAt || Date.now()).getTime(), mkt:u.mkt || {email:false, sms:false}}; }
 function normalizeApiOrder(o){ return {id:o._id, no:o.orderNo, at:new Date(o.createdAt || o.createdAt).getTime(), status:o.status, items:(o.items || []).map(i => ({id:i.productId, name:i.name, opt:i.option, qty:i.quantity, price:i.unitPrice})), sub:o.subtotal, ship:o.shippingFee, total:o.total, to:o.shippingAddress}; }
 async function apiRequest(path, options = {}){
   const headers = {'Content-Type':'application/json', ...(options.headers || {})};
@@ -1318,11 +1319,11 @@ async function apiRequest(path, options = {}){
   if(!response.ok) throw new Error(body.error || '요청을 처리하지 못했습니다.');
   return body;
 }
-function saveApiSession(token, user){ localStorage.setItem(K_API_TOKEN, token); apiUser = user; }
+function saveApiSession(token, user){ localStorage.setItem(K_API_TOKEN, token); apiUser = normalizeApiUser(user); }
 function clearApiSession(){ localStorage.removeItem(K_API_TOKEN); apiUser = null; apiOrders = []; }
 async function hydrateApiSession(){
   if(!localStorage.getItem(K_API_TOKEN)) return;
-  try { const me = await apiRequest('/api/me'); apiUser = me.user; const orders = await apiRequest('/api/orders'); apiOrders = (orders.orders || []).map(normalizeApiOrder); route(); }
+  try { const me = await apiRequest('/api/me'); apiUser = normalizeApiUser(me.user); const orders = await apiRequest('/api/orders'); apiOrders = (orders.orders || []).map(normalizeApiOrder); route(); }
   catch { clearApiSession(); syncHeader(); }
 }
 const K_USERS='dapalayu_users_v1', K_SESSION='dapalayu_session_v1',
@@ -1737,7 +1738,7 @@ async function saveProfile(u){
   if(!isPhone(phone)){ setErr('e_pphone', t('ePhFormat')); ok = false; }
   if(!ok) return;
   if(apiUser){
-    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({name, phone})}); apiUser = result.user; }
+    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({name, phone})}); apiUser = normalizeApiUser(result.user); }
     catch(error){ toast(error.message); return; }
   }else patchUser({id: u.id, name, phone, mkt: {email: chk('f_me'), sms: chk('f_ms')}});
   renderAccount('profile'); syncHeader();
@@ -1773,7 +1774,7 @@ async function saveAddr(u, id){
   if(!list.some(a => a.def)) list[0].def = true;
 
   if(apiUser){
-    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({addresses:list})}); apiUser = result.user; }
+    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({addresses:list})}); apiUser = normalizeApiUser(result.user); }
     catch(error){ toast(error.message); return; }
   }else addrSet(u.id, list);
   addrEdit = null;
@@ -1787,7 +1788,7 @@ async function delAddr(u, id){
   const list = addrOf(u.id).filter(a => a.id !== id);
   if(list.length && !list.some(a => a.def)) list[0].def = true;
   if(apiUser){
-    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({addresses:list})}); apiUser = result.user; }
+    try { const result = await apiRequest('/api/me', {method:'PATCH', body:JSON.stringify({addresses:list})}); apiUser = normalizeApiUser(result.user); }
     catch(error){ toast(error.message); return; }
   }else addrSet(u.id, list);
   if(addrEdit === id) addrEdit = null;
