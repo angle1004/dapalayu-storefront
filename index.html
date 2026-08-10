@@ -1915,7 +1915,7 @@ async function loadAdminFromApi(){
   if(!apiUser || apiUser.role !== 'admin') return;
   try{
     const [ordersRes, usersRes] = await Promise.all([apiRequest('/api/orders'), apiRequest('/api/admin/users')]);
-    const list = (ordersRes.orders || []).map(normalizeApiOrder), members = (usersRes.users || []).map(u => ({...u, id:u._id}));
+    const list = (ordersRes.orders || []).map(normalizeApiOrder), members = (usersRes.users || []).map(u => ({...u, id:u._id, at:new Date(u.createdAt).getTime()}));
     const grouped = {}; list.forEach(o => { const raw = (ordersRes.orders || []).find(x => x.orderNo === o.no); const uid = raw?.user?._id || raw?.user || 'unknown'; (grouped[uid] ||= []).push(o); });
     usersSet(members); store.set(K_ORDERS, grouped); renderAdmin();
   }catch(error){ toast(error.message); }
@@ -1930,7 +1930,8 @@ function adminOrderTable(list, full){
   if(!list.length) return `<p class="admin-empty">아직 주문 데이터가 없습니다.</p>`;
   return `<table class="admin-table"><thead><tr><th>주문</th><th>상품 / 수량</th>${full ? '<th>배송지</th>' : ''}<th>상태</th><th>결제</th></tr></thead><tbody>${list.map(o => {
     const first = o.items?.[0], p = first && findP(first.id), count = (o.items || []).reduce((n, x) => n + x.qty, 0), who = o.user?.name || '비회원';
-    return `<tr><td><b>${o.no}</b><span class="sub">${who} · ${adminDate(o.at)}</span></td><td>${adminName(p)}${(o.items || []).length > 1 ? ` 외 ${o.items.length - 1}` : ''}<span class="sub">총 ${count}개</span></td>${full ? `<td>${esc(o.to?.recipient || '')}<span class="sub">${esc(addrLine(o.to || {})) || '주소 미입력'}</span></td>` : ''}<td><button class="state" data-order-status="${o.userId}|${o.no}" title="클릭해 다음 상태로 변경">${adminStatus(o.status)}</button></td><td><b>${money(o.total || 0)}</b></td></tr>`;
+    const statusKey = o.id || `${o.userId}|${o.no}`;
+    return `<tr><td><b>${o.no}</b><span class="sub">${who} · ${adminDate(o.at)}</span></td><td>${adminName(p)}${(o.items || []).length > 1 ? ` 외 ${o.items.length - 1}` : ''}<span class="sub">총 ${count}개</span></td>${full ? `<td>${esc(o.to?.recipient || '')}<span class="sub">${esc(addrLine(o.to || {})) || '주소 미입력'}</span></td>` : ''}<td><button class="state" data-order-status="${statusKey}" title="클릭해 다음 상태로 변경">${adminStatus(o.status)}</button></td><td><b>${money(o.total || 0)}</b></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 function adminOrdersPanel(all){ return `<h2 class="admin-title">주문 및 배송 관리</h2><p class="admin-note">배송 상태를 누르면 결제 완료 → 상품 준비 → 배송 중 → 배송 완료 순서로 변경됩니다.</p>${adminOrderTable(all, true)}`; }
@@ -1951,6 +1952,12 @@ function adminChatPanel(members){
 }
 function nextStatus(status){ return ({paid:'preparing', preparing:'shipped', shipped:'delivered', delivered:'paid'})[status] || 'preparing'; }
 function updateAdminOrderStatus(key){
+  if(apiUser && !key.includes('|')){
+    const current = apiOrders.find(o => String(o.id) === String(key)), status = nextStatus(current?.status);
+    if(!current || !status) return;
+    apiRequest(`/api/orders/${key}/status`, {method:'PATCH', body:JSON.stringify({status})}).then(loadAdminFromApi).catch(error => toast(error.message));
+    return;
+  }
   const [userId, no] = key.split('|'), all = store.get(K_ORDERS, {}), order = (all[userId] || []).find(o => o.no === no);
   if(order){ order.status = nextStatus(order.status); store.set(K_ORDERS, all); renderAdmin(); }
 }
