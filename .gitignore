@@ -3,4 +3,7 @@
 .chrome-profile/
 .chrome-profile-2/
 desktop.png
-
+.env
+server/.env
+node_modules/
+server/node_modules/
