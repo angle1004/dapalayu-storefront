@@ -361,6 +361,24 @@
   .gate .lg{font-family:var(--serif);font-style:italic;font-size:26px;margin-bottom:12px}
   .gate p{color:var(--ink-60);font-size:13px;margin:0 0 28px}
 
+  /* ---------- 관리자 ---------- */
+  body.admin-view nav.cats, body.admin-view footer{display:none}
+  .admin{padding:42px 0 80px}
+  .admin-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding-bottom:26px;border-bottom:1px solid var(--ink)}
+  .admin-head h1{margin:8px 0 0;font-size:30px;letter-spacing:-.045em}
+  .admin-head p{margin:0;color:var(--ink-60);font-size:12.5px}
+  .admin-layout{display:grid;grid-template-columns:180px minmax(0,1fr);gap:46px;padding-top:28px}
+  .admin-nav{border-right:1px solid var(--line);padding-right:24px}
+  .admin-nav button{display:block;width:100%;padding:10px 0;text-align:left;color:var(--ink-60);font-size:13px}
+  .admin-nav button[aria-current="true"]{color:var(--ink);font-weight:700}
+  .admin-main{min-width:0}.admin-title{margin:0 0 22px;font-size:19px;letter-spacing:-.03em}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:30px}
+  .metric{border:1px solid var(--line);padding:18px}.metric span{display:block;color:var(--ink-40);font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase}.metric b{display:block;margin-top:10px;font-size:21px;letter-spacing:-.04em}.metric small{display:block;margin-top:5px;color:var(--ink-60);font-size:11px}
+  .admin-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px}.admin-box{border-top:1px solid var(--ink);padding-top:15px}.admin-box h3{margin:0 0 14px;font-size:13px}.admin-empty{padding:34px 0;color:var(--ink-40);font-size:12.5px;line-height:1.7}
+  .admin-table{width:100%;border-collapse:collapse;font-size:12.5px}.admin-table th{padding:10px 8px;text-align:left;color:var(--ink-40);font-family:var(--serif);font-size:10px;letter-spacing:.12em;font-weight:400;text-transform:uppercase;border-bottom:1px solid var(--line)}.admin-table td{padding:13px 8px;vertical-align:top;border-bottom:1px solid var(--line-2)}.admin-table td:last-child{text-align:right}.admin-table .sub{display:block;margin-top:3px;color:var(--ink-40);font-size:11px}.admin-table .state{display:inline-block;border:1px solid var(--line);padding:3px 6px;font-family:var(--serif);font-size:9px;letter-spacing:.12em;white-space:nowrap}
+  .revenue-bars{display:flex;align-items:flex-end;gap:12px;height:170px;padding:16px 0;border-bottom:1px solid var(--line)}.revenue-bar{flex:1;min-width:0;background:var(--ink);position:relative}.revenue-bar span{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink-40);white-space:nowrap}
+  .chat{display:grid;grid-template-columns:180px minmax(0,1fr);border:1px solid var(--line);min-height:430px}.chat-list{border-right:1px solid var(--line)}.chat-user{display:block;width:100%;padding:14px;text-align:left;border-bottom:1px solid var(--line-2);font-size:12.5px}.chat-user[aria-current="true"]{background:var(--tile)}.chat-user small{display:block;margin-top:3px;color:var(--ink-40);font-size:10.5px}.chat-pane{display:flex;flex-direction:column;min-width:0}.chat-log{flex:1;padding:18px;overflow:auto}.bubble{max-width:78%;margin:0 0 10px;padding:10px 12px;background:var(--tile);font-size:12px;line-height:1.6}.bubble.me{margin-left:auto;background:var(--ink);color:var(--paper)}.chat-compose{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}.chat-compose input{min-width:0;flex:1;border:1px solid var(--line);padding:10px 11px;font-size:12px}.chat-compose button{background:var(--ink);color:var(--paper);padding:0 15px;font-size:12px}.admin-note{margin:0 0 20px;color:var(--ink-60);font-size:12px;line-height:1.7}
+
   @media (max-width:1080px){
     .hero{grid-template-columns:1fr 320px;gap:44px}
     .hero h1{font-size:38px}
@@ -397,6 +415,7 @@
     .acct-head h1{font-size:25px}
     .auth{padding:34px 24px 30px}
     .grid2{grid-template-columns:1fr}
+    .admin{padding:30px 0 56px}.admin-head{align-items:flex-start;flex-direction:column}.admin-layout{grid-template-columns:1fr;gap:20px}.admin-nav{display:flex;gap:18px;overflow:auto;border-right:0;border-bottom:1px solid var(--line);padding:0 0 14px}.admin-nav button{width:auto;white-space:nowrap}.metrics{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.admin-table{display:block;overflow:auto;white-space:nowrap}.chat{grid-template-columns:130px minmax(0,1fr)}
   }
 </style>
 </head>
@@ -461,6 +480,10 @@
 
 <main class="wrap" id="viewAccount" hidden>
   <div id="acctRoot"></div>
+</main>
+
+<main class="wrap" id="viewAdmin" hidden>
+  <div id="adminRoot"></div>
 </main>
 
 <footer>
@@ -1828,6 +1851,80 @@ function checkout(){
   toast(t('tOrdered', {amt: money(total)}));
 }
 
+/* ---------------------------- 관리자 (정적 프로토타입) ---------------------------- */
+const K_ADMIN_CHAT = 'dapalayu_admin_chat_v1';
+let adminSection = 'overview', adminChatUser = null;
+
+function adminOrders(){
+  const byUser = store.get(K_ORDERS, {}), byId = new Map(users().map(u => [u.id, u]));
+  return Object.entries(byUser).flatMap(([userId, list]) => (list || []).map(o => ({...o, userId, user:byId.get(userId)}))).sort((a,b) => b.at - a.at);
+}
+function adminName(p){ return p ? (p.n.ko || p.n.en) : '삭제된 상품'; }
+function adminDate(ts){ return new Date(ts).toLocaleDateString('ko-KR', {month:'short', day:'numeric'}); }
+function adminStatus(s){ return ({paid:'결제 완료', preparing:'상품 준비', shipped:'배송 중', delivered:'배송 완료'})[s] || s; }
+function adminChats(){ return store.get(K_ADMIN_CHAT, {}); }
+function adminChatsSet(data){ store.set(K_ADMIN_CHAT, data); }
+function adminNav(id, label){ return `<button data-admin-sec="${id}" aria-current="${adminSection === id}">${label}</button>`; }
+
+function renderAdmin(){
+  const root = document.getElementById('adminRoot'), all = adminOrders(), members = users();
+  const revenue = all.reduce((sum, o) => sum + (o.total || 0), 0);
+  const current = adminSection === 'overview' ? adminOverview(all, members, revenue)
+    : adminSection === 'orders' ? adminOrdersPanel(all)
+    : adminSection === 'members' ? adminMembersPanel(members, all)
+    : adminSection === 'revenue' ? adminRevenuePanel(all, revenue)
+    : adminChatPanel(members);
+  root.innerHTML = `<section class="admin">
+    <div class="admin-head"><div><span class="eyebrow">Dapalayu operations</span><h1>관리자 대시보드</h1></div><p>주문 · 회원 · 매출 · 고객 문의를 한 곳에서 관리합니다.</p></div>
+    <div class="admin-layout"><nav class="admin-nav">${adminNav('overview','개요')}${adminNav('orders','주문 / 배송')}${adminNav('members','회원')}${adminNav('revenue','매출')}${adminNav('chat','고객 문의')}</nav><div class="admin-main">${current}</div></div>
+  </section>`;
+}
+function adminOverview(all, members, revenue){
+  const pending = all.filter(o => o.status === 'paid' || o.status === 'preparing').length;
+  return `<h2 class="admin-title">오늘의 운영 현황</h2>
+    <div class="metrics"><div class="metric"><span>총 매출</span><b>${money(revenue)}</b><small>누적 결제 완료 기준</small></div><div class="metric"><span>주문</span><b>${all.length}건</b><small>전체 주문</small></div><div class="metric"><span>배송 처리</span><b>${pending}건</b><small>준비가 필요한 주문</small></div><div class="metric"><span>회원</span><b>${members.length}명</b><small>가입 완료 고객</small></div></div>
+    <div class="admin-grid"><section class="admin-box"><h3>최근 주문</h3>${adminOrderTable(all.slice(0,5), false)}</section><section class="admin-box"><h3>운영 안내</h3><p class="admin-empty">주문이 들어오면 고객명, 상품·수량, 배송지와 결제 금액이 여기에 표시됩니다.<br><br>현재 버전은 브라우저 저장소 기반 데모입니다. 실제 고객 주문과 문의를 통합 관리하려면 주문·회원·채팅 데이터를 서버 DB로 이전해야 합니다.</p></section></div>`;
+}
+function adminOrderTable(list, full){
+  if(!list.length) return `<p class="admin-empty">아직 주문 데이터가 없습니다.</p>`;
+  return `<table class="admin-table"><thead><tr><th>주문</th><th>상품 / 수량</th>${full ? '<th>배송지</th>' : ''}<th>상태</th><th>결제</th></tr></thead><tbody>${list.map(o => {
+    const first = o.items?.[0], p = first && findP(first.id), count = (o.items || []).reduce((n, x) => n + x.qty, 0), who = o.user?.name || '비회원';
+    return `<tr><td><b>${o.no}</b><span class="sub">${who} · ${adminDate(o.at)}</span></td><td>${adminName(p)}${(o.items || []).length > 1 ? ` 외 ${o.items.length - 1}` : ''}<span class="sub">총 ${count}개</span></td>${full ? `<td>${esc(o.to?.recipient || '')}<span class="sub">${esc(addrLine(o.to || {})) || '주소 미입력'}</span></td>` : ''}<td><button class="state" data-order-status="${o.userId}|${o.no}" title="클릭해 다음 상태로 변경">${adminStatus(o.status)}</button></td><td><b>${money(o.total || 0)}</b></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+function adminOrdersPanel(all){ return `<h2 class="admin-title">주문 및 배송 관리</h2><p class="admin-note">배송 상태를 누르면 결제 완료 → 상품 준비 → 배송 중 → 배송 완료 순서로 변경됩니다.</p>${adminOrderTable(all, true)}`; }
+function adminMembersPanel(members, all){
+  return `<h2 class="admin-title">회원 관리</h2>${members.length ? `<table class="admin-table"><thead><tr><th>회원</th><th>연락처</th><th>가입일</th><th>주문</th></tr></thead><tbody>${members.map(u => `<tr><td><b>${esc(u.name)}</b><span class="sub">${esc(u.email)}</span></td><td>${esc(u.phone)}</td><td>${adminDate(u.at)}</td><td>${all.filter(o => o.userId === u.id).length}건</td></tr>`).join('')}</tbody></table>` : '<p class="admin-empty">아직 가입한 회원이 없습니다.</p>'}`;
+}
+function adminRevenuePanel(all, revenue){
+  const months = Array.from({length:6}, (_, i) => { const d = new Date(); d.setMonth(d.getMonth() - (5-i)); return d; });
+  const values = months.map(d => all.filter(o => { const x = new Date(o.at); return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth(); }).reduce((n,o) => n + (o.total || 0),0));
+  const max = Math.max(...values, 1);
+  return `<h2 class="admin-title">매출 관리</h2><div class="metrics"><div class="metric"><span>누적 매출</span><b>${money(revenue)}</b><small>전체 주문 결제 금액</small></div><div class="metric"><span>객단가</span><b>${all.length ? money(Math.round(revenue / all.length)) : '—'}</b><small>주문 1건당 평균</small></div></div><section class="admin-box"><h3>최근 6개월 매출</h3><div class="revenue-bars">${months.map((d,i) => `<div class="revenue-bar" style="height:${Math.max(4, values[i] / max * 100)}%"><span>${d.getMonth()+1}월</span></div>`).join('')}</div></section>`;
+}
+function adminChatPanel(members){
+  if(!members.length) return `<h2 class="admin-title">고객 문의</h2><p class="admin-empty">회원이 생기면 이곳에서 고객별 문의 내역을 확인하고 답변할 수 있습니다.</p>`;
+  if(!adminChatUser || !members.some(u => u.id === adminChatUser)) adminChatUser = members[0].id;
+  const chats = adminChats(), selected = members.find(u => u.id === adminChatUser), messages = chats[adminChatUser] || [];
+  return `<h2 class="admin-title">고객 문의</h2><div class="chat"><aside class="chat-list">${members.map(u => `<button class="chat-user" data-chat-user="${u.id}" aria-current="${u.id === adminChatUser}">${esc(u.name)}<small>${esc(u.email)}</small></button>`).join('')}</aside><div class="chat-pane"><div class="chat-log">${messages.length ? messages.map(m => `<div class="bubble ${m.from === 'admin' ? 'me' : ''}">${esc(m.text)}</div>`).join('') : '<p class="admin-empty">아직 대화가 없습니다. 먼저 답변을 남겨보세요.</p>'}</div><form class="chat-compose" id="adminChatForm"><input id="adminChatInput" aria-label="답변 입력" placeholder="${esc(selected.name)}님에게 답변하기"><button>전송</button></form></div></div>`;
+}
+function nextStatus(status){ return ({paid:'preparing', preparing:'shipped', shipped:'delivered', delivered:'paid'})[status] || 'preparing'; }
+function updateAdminOrderStatus(key){
+  const [userId, no] = key.split('|'), all = store.get(K_ORDERS, {}), order = (all[userId] || []).find(o => o.no === no);
+  if(order){ order.status = nextStatus(order.status); store.set(K_ORDERS, all); renderAdmin(); }
+}
+document.getElementById('adminRoot').addEventListener('click', e => {
+  const sec = e.target.closest('[data-admin-sec]'), user = e.target.closest('[data-chat-user]'), state = e.target.closest('[data-order-status]');
+  if(sec){ adminSection = sec.dataset.adminSec; renderAdmin(); }
+  if(user){ adminChatUser = user.dataset.chatUser; renderAdmin(); }
+  if(state) updateAdminOrderStatus(state.dataset.orderStatus);
+});
+document.getElementById('adminRoot').addEventListener('submit', e => {
+  if(e.target.id !== 'adminChatForm') return; e.preventDefault();
+  const input = document.getElementById('adminChatInput'), text = input.value.trim(); if(!text) return;
+  const chats = adminChats(); chats[adminChatUser] = [...(chats[adminChatUser] || []), {from:'admin', text, at:Date.now()}]; adminChatsSet(chats); renderAdmin();
+});
+
 /* ---------------------------- 라우팅 ---------------------------- */
 function syncHeader(){
   document.getElementById('btnAccount').textContent = currentUser() ? t('account') : t('login');
@@ -1836,10 +1933,14 @@ function go(hash){ location.hash === hash ? route() : location.hash = hash; }
 function route(){
   const h = location.hash || '#/';
   const isAcct = h.startsWith('#/account');
+  const isAdmin = h.startsWith('#/admin');
   document.body.classList.toggle('acct-view', isAcct);
-  document.getElementById('viewShop').hidden = isAcct;
+  document.body.classList.toggle('admin-view', isAdmin);
+  document.getElementById('viewShop').hidden = isAcct || isAdmin;
   document.getElementById('viewAccount').hidden = !isAcct;
+  document.getElementById('viewAdmin').hidden = !isAdmin;
   if(isAcct) renderAccount(h.split('/')[2] || 'profile');
+  if(isAdmin) renderAdmin();
   window.scrollTo({top: 0});
   syncHeader();
 }
