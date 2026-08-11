@@ -19,7 +19,12 @@ const mongoUriCheck = {
 };
 
 const app = express();
-const origins = CLIENT_ORIGIN.split(',').map(x => x.trim()).filter(Boolean);
+const origins = [...new Set([
+  'https://dapalayu.com',
+  'https://www.dapalayu.com',
+  'https://dapalayu-storefront.onrender.com',
+  ...CLIENT_ORIGIN.split(',').map(x => x.trim()).filter(Boolean)
+])];
 app.use(cors({ origin(origin, done) {
   if (!origin || origins.includes(origin)) return done(null, true);
   return done(new Error('허용되지 않은 Origin입니다.'));
