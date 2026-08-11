@@ -68,9 +68,9 @@
   }
   .masthead{display:flex;align-items:center;justify-content:space-between;gap:26px;height:74px}
   .logo{
-    font-size:21px;font-weight:700;letter-spacing:.22em;white-space:nowrap;
-    display:flex;align-items:baseline;gap:10px;
+    white-space:nowrap;display:flex;align-items:center;min-width:0;
   }
+  .brand-logo{display:block;width:190px;height:72px;object-fit:contain;object-position:left center}
   .logo em{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.14em;color:var(--ink-40);font-weight:400}
   .utils{display:flex;align-items:center;gap:20px}
   .searchline{
@@ -314,7 +314,7 @@
   footer ul{list-style:none;margin:0;padding:0}
   footer li{margin-bottom:8px}
   footer .biz{line-height:1.95;color:var(--ink-40);font-size:11.5px}
-  .fmark{font-size:17px;font-weight:700;letter-spacing:.2em;color:var(--ink);margin-bottom:18px}
+  .fmark{margin-bottom:18px}.fmark img{display:block;width:150px;height:auto}
   .company{border-top:1px solid var(--line);margin-top:110px;padding:86px 0 112px}
   .company-intro{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:end;margin-bottom:52px}
   .company h2{margin:10px 0 0;font-size:34px;line-height:1.16;letter-spacing:-.05em}
@@ -495,7 +495,7 @@
     .modal-scroll{padding:26px 24px 10px}
     .modal-foot{padding:14px 24px 24px}
     .masthead{height:64px;gap:14px}
-    .logo{font-size:17px;letter-spacing:.16em}
+    .brand-logo{width:155px;height:58px}
     .logo em{display:none}
     .utils{gap:14px}
     .fcols{grid-template-columns:1fr 1fr;gap:34px}
@@ -522,7 +522,7 @@
   <div class="notice" data-i18n="notice"></div>
   <div class="wrap">
     <div class="masthead">
-      <button class="logo" id="btnHome"><span id="wordmark">DAPALAYU</span> <em>Everyday Goods</em></button>
+      <button class="logo" id="btnHome" aria-label="DAPALAYU MARKET home"><img class="brand-logo" src="assets/dapalayu-market-logo.png" alt="DAPALAYU MARKET"></button>
       <div class="utils">
         <div class="searchline">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
@@ -616,7 +616,7 @@
 <footer>
   <div class="wrap fcols">
     <div>
-      <div class="fmark" id="fmark">DAPALAYU</div>
+      <div class="fmark"><img src="assets/dapalayu-market-logo.png" alt="DAPALAYU MARKET"></div>
       <div class="biz" data-i18n-html="fBiz"></div>
     </div>
     <div>
@@ -1200,8 +1200,6 @@ const priceHTML = p =>
 function applyStatic(){
   document.documentElement.lang = lang;
   document.title = t('docTitle');
-  document.getElementById('wordmark').textContent = t('wordmark');
-  document.getElementById('fmark').textContent = t('wordmark');
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
