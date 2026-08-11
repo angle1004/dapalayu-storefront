@@ -1505,7 +1505,7 @@ async function doSignup(){
     const result = await apiRequest('/api/auth/signup', {method:'POST', body:JSON.stringify({name, email, phone:'+84' + phone.slice(1), password:pw})});
     saveApiSession(result.token, result.user); closeOverlays(); syncHeader();
     toast(t('tSignedUp', {name: result.user.name})); go('#/account/profile');
-  }catch(error){ setErr('e_email', error.message || t('eEmailDup')); document.getElementById('e_email')?.scrollIntoView({block:'center', behavior:'smooth'}); }
+  }catch(error){ const message = error.message || t('eEmailDup'); setErr('e_email', message); toast(message); document.getElementById('e_email')?.scrollIntoView({block:'center', behavior:'smooth'}); }
 }
 
 document.addEventListener('click', e => {

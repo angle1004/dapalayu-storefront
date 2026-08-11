@@ -72,7 +72,7 @@ app.post('/api/auth/signup', async (req, res, next) => {
     if (await User.exists({ email: normalized })) return res.status(409).json({ error: '이미 가입된 이메일입니다.' });
     const user = await User.create({ name, email: normalized, phone, passwordHash: await bcrypt.hash(password, 12), role: adminEmails.has(normalized) ? 'admin' : 'customer' });
     res.status(201).json({ token: tokenFor(user), user: publicUser(user) });
-  } catch (error) { next(error); }
+  } catch (error) { if(error?.code === 11000) return res.status(409).json({error:'이미 가입된 이메일입니다.'}); next(error); }
 });
 app.post('/api/auth/login', async (req, res, next) => {
   try {
