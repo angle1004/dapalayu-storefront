@@ -19,7 +19,8 @@
     --serif:"Iowan Old Style",Georgia,"Times New Roman",serif;
     --sans:"Pretendard","Apple SD Gothic Neo","Segoe UI","Malgun Gothic",system-ui,-apple-system,sans-serif;
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0}
   html,body{margin:0;padding:0}
   body{
     background:var(--paper);color:var(--ink);font-family:var(--sans);
@@ -1467,7 +1468,11 @@ async function doLogin(){
   let ok = true;
   if(!isEmail(email)){ setErr('e_lemail', t('eEmailFormat')); ok = false; }
   if(!pw){ setErr('e_lpw', t('ePwRequired')); ok = false; }
-  if(!ok) return;
+  if(!ok){
+    const firstInvalid = $auth.querySelector('.inp.bad, input[type="checkbox"]:not(:checked)');
+    firstInvalid?.focus(); firstInvalid?.scrollIntoView({block:'center', behavior:'smooth'});
+    return;
+  }
 
   try{
     const result = await apiRequest('/api/auth/login', {method:'POST', body:JSON.stringify({email, password:pw})});
@@ -1490,13 +1495,17 @@ async function doSignup(){
   if(!isPw(pw)){ setErr('e_pw', t('ePwWeak')); ok = false; }
   if(pw !== pw2){ setErr('e_pw2', t('ePwMismatch')); ok = false; }
   if(!chk('f_t1') || !chk('f_t2')){ document.getElementById('e_terms').textContent = t('eTerms'); ok = false; }
-  if(!ok) return;
+  if(!ok){
+    const firstInvalid = $auth.querySelector('.inp.bad, input[type="checkbox"]:not(:checked)');
+    firstInvalid?.focus(); firstInvalid?.scrollIntoView({block:'center', behavior:'smooth'});
+    return;
+  }
 
   try{
     const result = await apiRequest('/api/auth/signup', {method:'POST', body:JSON.stringify({name, email, phone:'+84' + phone.slice(1), password:pw})});
     saveApiSession(result.token, result.user); closeOverlays(); syncHeader();
     toast(t('tSignedUp', {name: result.user.name})); go('#/account/profile');
-  }catch(error){ setErr('e_email', error.message || t('eEmailDup')); }
+  }catch(error){ setErr('e_email', error.message || t('eEmailDup')); document.getElementById('e_email')?.scrollIntoView({block:'center', behavior:'smooth'}); }
 }
 
 document.addEventListener('click', e => {
