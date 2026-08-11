@@ -1336,11 +1336,8 @@ function demoHash(s){
   return ('0000000' + (h >>> 0).toString(16)).slice(-8);
 }
 const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
-// 한국(010)·베트남 휴대폰 형식 지원
-const isPhone = s => {
-  const n = s.replace(/[\s.()-]/g, '');
-  return /^(?:01[016789]\d{7,8}|(?:0|\+?84)(3|5|7|8|9)\d{8})$/.test(n);
-};
+// 베트남 휴대폰: 0 또는 +84 뒤에 3/5/7/8/9 + 8자리
+const isPhone = s => /^(?:0|\+?84)(3|5|7|8|9)\d{8}$/.test(s.replace(/[\s.()-]/g, ''));
 const isPw    = s => s.length >= 8 && /[A-Za-z]/.test(s) && /\d/.test(s);
 
 const users = () => store.get(K_USERS, []);
