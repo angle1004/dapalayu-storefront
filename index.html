@@ -276,6 +276,7 @@
   .inp:focus{border-color:var(--ink)}
   .inp:disabled{background:var(--tile);color:var(--ink-40);cursor:not-allowed}
   .inp.bad{border-color:var(--accent)}
+  .phone-control{display:flex;align-items:stretch}.phone-prefix{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-right:0;background:var(--tile);padding:0 12px;font-size:13px;white-space:nowrap}.phone-control .inp{min-width:0}
   .err{display:block;font-size:11.5px;color:var(--accent);margin-top:7px}
   .hint{display:block;font-size:11.5px;color:var(--ink-40);margin-top:7px}
   .check{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--ink-60);margin-bottom:11px;cursor:pointer}
@@ -1337,7 +1338,13 @@ function demoHash(s){
 }
 const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
 // 베트남 휴대폰: 0 또는 +84 뒤에 3/5/7/8/9 + 8자리
-const isPhone = s => /^(?:0|\+?84)(3|5|7|8|9)\d{8}$/.test(s.replace(/[\s.()-]/g, ''));
+const normalizeVietnamPhone = s => {
+  const n = s.replace(/[\s.()-]/g, '');
+  if(/^\+?84(3|5|7|8|9)\d{8}$/.test(n)) return '0' + n.replace(/^\+?84/, '');
+  if(/^(3|5|7|8|9)\d{8}$/.test(n)) return '0' + n;
+  return n;
+};
+const isPhone = s => /^(?:0)(3|5|7|8|9)\d{8}$/.test(normalizeVietnamPhone(s));
 const isPw    = s => s.length >= 8 && /[A-Za-z]/.test(s) && /\d/.test(s);
 
 const users = () => store.get(K_USERS, []);
@@ -1428,7 +1435,7 @@ function renderAuth(){
     </div>
     <div class="frow">
       <label for="f_phone">${esc(t('aPhone'))}</label>
-      <input class="inp" id="f_phone" inputmode="tel" placeholder="090 123 4567">
+      <div class="phone-control"><span class="phone-prefix" aria-hidden="true">🇻🇳 +84</span><input class="inp" id="f_phone" inputmode="tel" autocomplete="tel-national" placeholder="90 123 4567"></div>
       <span class="err" id="e_phone"></span>
     </div>
     <div class="frow">
@@ -1471,7 +1478,7 @@ async function doLogin(){
 
 async function doSignup(){
   const name = val('f_name').trim(), email = val('f_email').trim().toLowerCase();
-  const phone = val('f_phone').trim(), pw = val('f_pw'), pw2 = val('f_pw2');
+  const phone = normalizeVietnamPhone(val('f_phone').trim()), pw = val('f_pw'), pw2 = val('f_pw2');
   ['e_name','e_email','e_phone','e_pw','e_pw2'].forEach(k => setErr(k, ''));
   document.getElementById('e_terms').textContent = '';
 
@@ -1485,7 +1492,7 @@ async function doSignup(){
   if(!ok) return;
 
   try{
-    const result = await apiRequest('/api/auth/signup', {method:'POST', body:JSON.stringify({name, email, phone, password:pw})});
+    const result = await apiRequest('/api/auth/signup', {method:'POST', body:JSON.stringify({name, email, phone:'+84' + phone.slice(1), password:pw})});
     saveApiSession(result.token, result.user); closeOverlays(); syncHeader();
     toast(t('tSignedUp', {name: result.user.name})); go('#/account/profile');
   }catch(error){ setErr('e_email', error.message || t('eEmailDup')); }
