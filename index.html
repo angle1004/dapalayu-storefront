@@ -1902,11 +1902,9 @@ function adminNav(id, label){ return `<button data-admin-sec="${id}" aria-curren
 function renderAdmin(){
   const root = document.getElementById('adminRoot'), all = adminOrders(), members = users();
   if(!apiUser){
-    root.innerHTML = `<div class="gate"><div class="lg">Admin access.</div><p>관리자 계정으로 로그인해야 운영 화면을 볼 수 있습니다.</p><button class="btn-solid" style="padding:15px 36px" data-admin-login>관리자 로그인</button></div>`;
     return;
   }
   if(apiUser.role !== 'admin'){
-    root.innerHTML = `<div class="gate"><div class="lg">Access denied.</div><p>관리자 권한이 있는 계정만 접근할 수 있습니다.</p><button class="btn-line" style="padding:14px 28px" data-admin-home>쇼핑으로 돌아가기</button></div>`;
     return;
   }
   const revenue = all.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -1995,6 +1993,8 @@ function route(){
   const h = location.hash || '#/';
   const isAcct = h.startsWith('#/account');
   const isAdmin = h.startsWith('#/admin');
+  if(isAdmin && !apiUser && !localStorage.getItem(K_API_TOKEN)){ location.hash = '#/'; return; }
+  if(isAdmin && apiUser && apiUser.role !== 'admin'){ location.hash = '#/'; return; }
   document.body.classList.toggle('acct-view', isAcct);
   document.body.classList.toggle('admin-view', isAdmin);
   document.getElementById('viewShop').hidden = isAcct || isAdmin;
